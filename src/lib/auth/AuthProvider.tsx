@@ -14,17 +14,25 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import type { Stage } from "@/types";
 
 export type Role = "profesora" | "alumno";
+
+export interface NewStudentProfile {
+  name: string;
+  birthDate: string;
+  stage: Stage;
+  avatarEmoji: string;
+}
 
 interface AuthState {
   user: User | null;
   role: Role | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, profile: NewStudentProfile) => Promise<void>;
   signOutUser: () => Promise<void>;
 }
 
@@ -52,8 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   }
 
-  async function signUp(email: string, password: string) {
-    await createUserWithEmailAndPassword(auth, email, password);
+  async function signUp(email: string, password: string, profile: NewStudentProfile) {
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", credential.user.uid), {
+      role: "alumno",
+      ...profile,
+      createdAt: serverTimestamp(),
+    });
   }
 
   async function signOutUser() {

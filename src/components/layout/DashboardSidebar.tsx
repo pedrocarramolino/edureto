@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { House, UsersThree, BookOpen, SignOut } from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { Logo } from "@/components/ui/Logo";
 
 const links = [
   { href: "/dashboard", label: "Resumen", Icon: House },
@@ -18,8 +19,8 @@ export function DashboardSidebar() {
 
   return (
     <aside className="flex w-64 flex-col gap-1 border-r border-slate-200 bg-white p-4">
-      <Link href="/" className="mb-6 px-2 font-heading text-xl font-bold text-primary">
-        EduReto
+      <Link href="/" className="mb-6 px-2">
+        <Logo size="sm" />
       </Link>
       {links.map(({ href, label, Icon }) => {
         const active = pathname === href;

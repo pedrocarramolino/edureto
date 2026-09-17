@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Logo } from "@/components/ui/Logo";
 
 export default function TerminosPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <Link href="/" className="font-heading text-lg font-bold text-primary">
-        EduReto
+      <Link href="/">
+        <Logo size="sm" />
       </Link>
       <h1 className="mt-4 font-heading text-3xl font-bold text-slate-900">Términos de uso</h1>
       <p className="mt-1 text-sm text-slate-400">Última actualización: {new Date().toLocaleDateString("es-ES")}</p>

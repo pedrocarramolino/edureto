@@ -7,6 +7,7 @@ import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
+import { Logo } from "@/components/ui/Logo";
 
 const errorMessages: Record<string, string> = {
   "auth/invalid-credential": "Correo o contraseña incorrectos.",
@@ -39,9 +40,9 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
-      <div className="text-center">
-        <Link href="/" className="font-heading text-2xl font-bold text-primary">
-          EduReto
+      <div className="flex flex-col items-center text-center">
+        <Link href="/">
+          <Logo size="lg" withWordmark={false} />
         </Link>
         <p className="mt-1 text-slate-500">Inicia sesión para continuar</p>
       </div>

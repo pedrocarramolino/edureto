@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { subjects } from "@/data/subjects";
 import { WorldBadge } from "@/components/ui/WorldBadge";
+import { Logo } from "@/components/ui/Logo";
 
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-10 px-6 py-16 text-center">
       <div className="space-y-4">
+        <Logo size="xl" withWordmark={false} className="justify-center" />
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">
           Refuerzo escolar con retos y juegos
         </p>
-        <h1 className="font-heading text-4xl font-bold text-slate-900 sm:text-5xl">EduReto</h1>
+        <h1 className="sr-only">EduReto</h1>
         <p className="mx-auto max-w-xl text-slate-600">
           Una plataforma para aprender y repasar cualquier asignatura, con actividades adaptadas
           a cada alumno y un panel para que la profesora organice el refuerzo.

@@ -2,12 +2,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Each user can read their own role/profile doc. Roles are assigned
-    // manually (Firebase console or a trusted backend), never by the
-    // client, so students can't grant themselves "profesora" access.
+    // Each user can read their own role/profile doc. A user can create
+    // their own doc at signup (self-service registration), but only with
+    // role "alumno" locked in — "profesora" accounts are granted manually
+    // (Firebase console or a trusted backend). No client updates/deletes,
+    // so a student can't later rewrite their own role.
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
-      allow write: if false;
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.role == "alumno";
+      allow update, delete: if false;
     }
 
     // No other collections are exposed yet.
