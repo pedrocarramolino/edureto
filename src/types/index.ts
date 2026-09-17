@@ -1,4 +1,4 @@
-export type Stage = "infantil" | "primaria_inicial" | "primaria_superior";
+export type Stage = "infantil" | "primaria_inicial" | "primaria_superior" | "eso";
 
 export type SubjectId =
   | "lengua"
