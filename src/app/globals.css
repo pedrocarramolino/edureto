@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #4f46e5;
+  --color-primary-foreground: #ffffff;
+  --color-primary-soft: #eef2ff;
+  --color-accent: #ea580c;
+  --color-accent-foreground: #ffffff;
+  --color-accent-soft: #fff2e8;
+
+  --font-heading: var(--font-poppins);
+  --font-body: var(--font-inter);
+  --font-display: var(--font-baloo);
+  --font-playful: var(--font-nunito);
+
+  --radius-clay: 1.5rem;
+
+  --shadow-clay: 0 5px 0 0 rgb(0 0 0 / 0.1), 0 12px 20px -8px rgb(0 0 0 / 0.18);
+  --shadow-clay-sm: 0 3px 0 0 rgb(0 0 0 / 0.1);
+  --shadow-clay-pressed: 0 1px 0 0 rgb(0 0 0 / 0.1);
+}
+
+body {
+  font-family: var(--font-body);
+}
