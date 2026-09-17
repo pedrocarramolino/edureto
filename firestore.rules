@@ -17,7 +17,13 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.role == "alumno";
-      allow update, delete: if false;
+      // A student may update only their own "placementTestsTaken" list
+      // (which subject placement tests they've already done) — nothing
+      // else about the doc, so this can't be used to change role/name/etc.
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["placementTestsTaken"]);
+      allow delete: if false;
     }
 
     // No other collections are exposed yet.

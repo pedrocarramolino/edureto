@@ -12,6 +12,10 @@
   --font-body: var(--font-inter);
   --font-display: var(--font-baloo);
   --font-playful: var(--font-nunito);
+  --font-chalk: var(--font-kalam);
+
+  --color-chalkboard: #2f4b3c;
+  --color-chalkboard-frame: #7c5a3a;
 
   --radius-clay: 1.5rem;
 

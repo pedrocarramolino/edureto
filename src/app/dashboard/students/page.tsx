@@ -5,6 +5,7 @@ import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
 import { stageOptions } from "@/data/stages";
 import { Card } from "@/components/ui/Card";
+import { Chalkboard } from "@/components/ui/Chalkboard";
 
 function stageLabel(stage: StudentProfile["stage"]) {
   return stageOptions.find((s) => s.value === stage)?.label ?? stage;
@@ -24,10 +25,9 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900">Mis alumnos</h1>
-        <p className="text-slate-500">Alumnos registrados en EduReto.</p>
-      </div>
+      <Chalkboard level="h1" title="Mis alumnos">
+        Alumnos registrados en EduReto.
+      </Chalkboard>
 
       {loading ? (
         <p className="text-sm text-slate-500">Cargando alumnos…</p>

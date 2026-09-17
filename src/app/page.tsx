@@ -2,6 +2,7 @@ import Link from "next/link";
 import { subjects } from "@/data/subjects";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Logo } from "@/components/ui/Logo";
+import { Chalkboard } from "@/components/ui/Chalkboard";
 
 export default function Home() {
   return (
@@ -24,6 +25,10 @@ export default function Home() {
       >
         Iniciar sesión
       </Link>
+
+      <Chalkboard title="Un mundo por asignatura" className="w-full text-left">
+        Cada asignatura tiene su propio mundo, con retos y juegos pensados para su nivel.
+      </Chalkboard>
 
       <div className="grid w-full gap-3 sm:grid-cols-3">
         {subjects.slice(0, 6).map((subject) => (

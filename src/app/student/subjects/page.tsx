@@ -2,14 +2,14 @@ import Link from "next/link";
 import { subjects } from "@/data/subjects";
 import { activitiesBySubject } from "@/data/activities";
 import { WorldBadge } from "@/components/ui/WorldBadge";
+import { Chalkboard } from "@/components/ui/Chalkboard";
 
 export default function SubjectsPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900">Mis asignaturas</h1>
-        <p className="text-slate-500">Elige un mundo para empezar a jugar.</p>
-      </div>
+      <Chalkboard level="h1" title="Mis asignaturas">
+        Elige un mundo para empezar a jugar.
+      </Chalkboard>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {subjects.map((subject) => {

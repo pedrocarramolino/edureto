@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
 import { Card } from "@/components/ui/Card";
+import { Chalkboard } from "@/components/ui/Chalkboard";
 
 export default function DashboardHome() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
@@ -23,10 +24,9 @@ export default function DashboardHome() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-heading text-2xl font-bold text-slate-900">Resumen</h1>
-        <p className="text-slate-500">Vista rápida de tus alumnos.</p>
-      </div>
+      <Chalkboard level="h1" title="¡Bienvenida de nuevo!">
+        Vista rápida de tus alumnos.
+      </Chalkboard>
 
       <Card className="max-w-xs">
         <p className="text-sm text-slate-500">Alumnos registrados</p>

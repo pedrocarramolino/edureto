@@ -15,6 +15,8 @@ export interface Subject {
   color: string;
   emoji: string;
   description: string;
+  /** Sub-category breakdown shown on the subject's world page (e.g. "Sumas", "Restas"). */
+  topics: string[];
 }
 
 export type SkillStatus = "necesita_practicar" | "en_progreso" | "consolidado";
