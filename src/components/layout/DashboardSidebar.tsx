@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { House, UsersThree, BookOpen } from "@phosphor-icons/react";
+import { usePathname, useRouter } from "next/navigation";
+import { House, UsersThree, BookOpen, SignOut } from "@phosphor-icons/react";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 const links = [
   { href: "/dashboard", label: "Resumen", Icon: House },
@@ -12,6 +13,8 @@ const links = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { signOutUser } = useAuth();
 
   return (
     <aside className="flex w-64 flex-col gap-1 border-r border-slate-200 bg-white p-4">
@@ -33,6 +36,17 @@ export function DashboardSidebar() {
           </Link>
         );
       })}
+
+      <button
+        onClick={async () => {
+          await signOutUser();
+          router.replace("/login");
+        }}
+        className="mt-auto flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50"
+      >
+        <SignOut size={20} aria-hidden="true" />
+        Cerrar sesión
+      </button>
     </aside>
   );
 }

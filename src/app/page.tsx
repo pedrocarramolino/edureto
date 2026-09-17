@@ -16,20 +16,12 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Link
-          href="/dashboard"
-          className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-indigo-700"
-        >
-          Entrar como profesora
-        </Link>
-        <Link
-          href="/student"
-          className="rounded-clay border-[3px] border-slate-200 bg-white px-6 py-3 font-display text-sm font-semibold text-slate-700 shadow-clay-sm transition-colors hover:bg-slate-50"
-        >
-          Entrar como alumno
-        </Link>
-      </div>
+      <Link
+        href="/login"
+        className="rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-indigo-700"
+      >
+        Iniciar sesión
+      </Link>
 
       <div className="grid w-full gap-3 sm:grid-cols-3">
         {subjects.slice(0, 6).map((subject) => (

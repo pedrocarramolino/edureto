@@ -52,16 +52,34 @@ definidos como tokens en `src/app/globals.css` (`@theme`) y fuentes en `src/lib/
 - `Button` y `Card` tienen variantes `clay` para la zona de alumno; el resto de componentes usa el
   estilo por defecto (Aula).
 
-## Firebase
+## Firebase Auth (real, ya conectado)
 
-`src/lib/firebase.ts` ya inicializa `auth` y `db`, pero necesita las credenciales del proyecto en
-`.env.local` (copia `.env.local.example`). Ni el login ni el guardado de datos están conectados
-todavía: las pantallas usan `src/data/*.ts` como fuente de datos temporal.
+El proyecto usa el Firebase real `edureto` (mismo que ya existía en la cuenta). `.env.local`
+(no está en git) tiene las credenciales de la app web; `.env.local.example` documenta qué
+variables hacen falta si hay que recrearlo en otra máquina.
+
+- `src/lib/auth/AuthProvider.tsx` — contexto de auth: `user`, `role`, `signIn`, `signOutUser`.
+  El rol (`profesora` | `alumno`) se lee del documento `users/{uid}` en Firestore.
+- `/login` — único formulario de acceso (email + contraseña); tras entrar, `/redirigiendo`
+  espera a que se resuelva el rol y manda a `/dashboard` o `/student`.
+- `src/components/auth/RequireRole.tsx` protege ambos layouts: sin sesión → `/login`; con el
+  rol equivocado → la zona que le corresponde.
+- `firestore.rules` (sin desplegar todavía — pide confirmación antes de `firebase deploy`) limita
+  `users/{uid}` a lectura del propio usuario; nada de escritura desde el cliente.
+
+**No hay registro público** (no encaja con el caso de uso: son alumnos conocidos, no altas
+abiertas). Para dar de alta una cuenta:
+
+1. Firebase Console → Authentication → Users → Add user (email + contraseña).
+2. Firestore → colección `users` → documento con ID = el UID de ese usuario → campo
+   `role: "profesora"` o `role: "alumno"`.
+
+Sin ese documento, cualquier cuenta se trata como `alumno` por defecto.
 
 ## Próximos pasos sugeridos
 
-1. Conectar Firebase Auth (login profesora/alumno) y sustituir los datos de ejemplo por
-   Firestore.
+1. Desplegar `firestore.rules` y sustituir los datos de ejemplo (`src/data/*.ts`) por colecciones
+   reales de Firestore (alumnos, actividades, retos, intentos).
 2. Persistir intentos de actividad (`ActivityAttempt`) y actualizar el estado de las habilidades
    automáticamente.
 3. Generador de actividades con IA en `/dashboard/activities/new`.
