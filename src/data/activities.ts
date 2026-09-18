@@ -7,6 +7,7 @@ import type {
   SubjectId,
 } from "@/types";
 import { mathGradeMissions, mathGradeQuestions } from "@/data/mathGrades";
+import { lenguaGradeMissions, lenguaGradeQuestions } from "@/data/lenguaGrades";
 
 const tabla7Facts: { factor: number; options: string[]; correctIndex: number }[] = [
   { factor: 1, options: ["7", "14", "17", "1"], correctIndex: 0 },
@@ -236,6 +237,7 @@ export const activities: Activity[] = [
     ],
   },
   ...mathGradeMissions,
+  ...lenguaGradeMissions,
   {
     id: "a5",
     type: "open_response",
@@ -257,6 +259,7 @@ const hiddenActivities: Activity[] = [
   ...ecosistemaActivities,
   cadenaAlimentariaActivity,
   ...mathGradeQuestions,
+  ...lenguaGradeQuestions,
 ];
 
 export function getActivity(id: string) {
