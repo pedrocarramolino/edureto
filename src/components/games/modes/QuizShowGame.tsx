@@ -37,12 +37,19 @@ export function QuizShowGame({ questions, onComplete }: GameModeProps) {
 
   function useAudience() {
     setUsedAudience(true);
-    // The audience is usually right, but not always: it is a hint, not the answer.
-    const votes = question.options.map((_, i) =>
-      i === question.correctIndex ? 45 + Math.random() * 25 : Math.random() * 20,
-    );
+    // The audience is usually right, but not always: it is a hint, not the
+    // answer. Options already removed by the 50:50 get no votes, so the
+    // percentages shown always add up to 100.
+    const votes = question.options.map((_, i) => {
+      if (hidden.includes(i)) return 0;
+      return i === question.correctIndex ? 45 + Math.random() * 25 : Math.random() * 20;
+    });
     const total = votes.reduce((sum, v) => sum + v, 0);
-    setAudience(votes.map((v) => Math.round((v / total) * 100)));
+    const percentages = votes.map((v) => Math.round((v / total) * 100));
+    // Rounding can leave 99 or 101; put the difference on the best answer.
+    const drift = 100 - percentages.reduce((sum, v) => sum + v, 0);
+    percentages[question.correctIndex] += drift;
+    setAudience(percentages);
   }
 
   function answer(option: number) {
