@@ -1,0 +1,170 @@
+"use client";
+
+import { useState } from "react";
+import type { ActivityResult, MultipleChoiceActivity } from "@/types";
+import { Button } from "@/components/ui/Button";
+
+export interface GameModeProps {
+  questions: MultipleChoiceActivity[];
+  onComplete: (result: ActivityResult) => void;
+}
+
+/** Where each option sits inside the goal, as a percentage of the box. */
+const corners = [
+  { x: 20, y: 26, label: "arriba a la izquierda" },
+  { x: 80, y: 26, label: "arriba a la derecha" },
+  { x: 20, y: 66, label: "abajo a la izquierda" },
+  { x: 80, y: 66, label: "abajo a la derecha" },
+];
+
+type Phase = "aiming" | "shot";
+
+export function PenaltyGame({ questions, onComplete }: GameModeProps) {
+  const [index, setIndex] = useState(0);
+  const [goals, setGoals] = useState(0);
+  const [phase, setPhase] = useState<Phase>("aiming");
+  const [shotAt, setShotAt] = useState<number | null>(null);
+
+  const question = questions[index];
+  const finished = index >= questions.length;
+  const scored = shotAt !== null && shotAt === question?.correctIndex;
+
+  // The keeper dives at the ball when the answer is wrong, and the wrong way
+  // when it is right.
+  const keeperCorner =
+    shotAt === null
+      ? null
+      : scored
+        ? corners[(shotAt + 2) % corners.length]
+        : corners[shotAt];
+
+  function shoot(option: number) {
+    setShotAt(option);
+    setPhase("shot");
+    if (option === question.correctIndex) setGoals((previous) => previous + 1);
+  }
+
+  function next() {
+    setShotAt(null);
+    setPhase("aiming");
+    setIndex((previous) => previous + 1);
+  }
+
+  if (finished) {
+    return (
+      <div className="space-y-4 text-center">
+        <p className="text-5xl" aria-hidden="true">
+          {goals === questions.length ? "🏆" : goals >= questions.length / 2 ? "⚽" : "💪"}
+        </p>
+        <p className="font-display text-xl font-bold text-slate-800">
+          {goals} {goals === 1 ? "gol" : "goles"} de {questions.length}
+        </p>
+        <Button
+          variant="clay"
+          onClick={() =>
+            onComplete({
+              correct: goals === questions.length,
+              correctCount: goals,
+              totalCount: questions.length,
+            })
+          }
+        >
+          Continuar
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
+        <span>
+          Penalti {index + 1} de {questions.length}
+        </span>
+        <span className="text-accent">⚽ {goals}</span>
+      </div>
+
+      <p className="text-center font-display text-xl font-bold text-slate-800">
+        {question.question}
+      </p>
+
+      {/* The goal. Each option is one of the four corners to shoot at. */}
+      <div className="relative aspect-[5/3] w-full overflow-hidden rounded-clay bg-gradient-to-b from-sky-200 to-emerald-300">
+        <div className="absolute inset-x-[6%] top-[10%] bottom-[22%] rounded-t-xl border-[6px] border-white bg-white/25 [background-image:linear-gradient(to_right,rgba(255,255,255,.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.5)_1px,transparent_1px)] [background-size:14px_14px]" />
+
+        <div
+          className="absolute text-3xl transition-all duration-500 sm:text-4xl"
+          style={{
+            left: `${keeperCorner ? keeperCorner.x : 50}%`,
+            top: `${keeperCorner ? keeperCorner.y : 46}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+          aria-hidden="true"
+        >
+          🧤
+        </div>
+
+        <div
+          className="absolute text-2xl transition-all duration-500 ease-out sm:text-3xl"
+          style={{
+            left: `${shotAt !== null ? corners[shotAt].x : 50}%`,
+            top: `${shotAt !== null ? corners[shotAt].y : 88}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+          aria-hidden="true"
+        >
+          ⚽
+        </div>
+
+        {question.options.map((option, optionIndex) => {
+          const corner = corners[optionIndex] ?? corners[0];
+          const isShot = shotAt === optionIndex;
+          const isRight = optionIndex === question.correctIndex;
+          return (
+            <button
+              key={option}
+              disabled={phase === "shot"}
+              onClick={() => shoot(optionIndex)}
+              aria-label={`Chutar ${corner.label}: ${option}`}
+              className={`absolute min-h-11 min-w-16 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-clay border-[3px] px-3 py-2 font-display text-lg font-bold shadow-clay-sm transition-colors disabled:cursor-not-allowed ${
+                phase === "shot" && isRight
+                  ? "border-emerald-600 bg-emerald-500 text-white"
+                  : phase === "shot" && isShot
+                    ? "border-rose-600 bg-rose-500 text-white"
+                    : "border-white bg-white/90 text-slate-800 hover:bg-white"
+              }`}
+              style={{ left: `${corner.x}%`, top: `${corner.y}%` }}
+            >
+              {option}
+            </button>
+          );
+        })}
+      </div>
+
+      <div aria-live="polite" className="min-h-14 text-center">
+        {phase === "aiming" ? (
+          <p className="text-sm text-slate-500">Chuta a la esquina con el resultado correcto.</p>
+        ) : (
+          <>
+            <p
+              className={`font-display text-lg font-bold ${scored ? "text-emerald-600" : "text-rose-600"}`}
+            >
+              {scored ? "¡GOOOL!" : "¡Parada del portero!"}
+            </p>
+            {!scored && (
+              <p className="text-sm text-slate-500">{question.explanation ?? ""}</p>
+            )}
+          </>
+        )}
+      </div>
+
+      {phase === "shot" && (
+        <div className="flex justify-center">
+          <Button variant="clay" onClick={next}>
+            {index + 1 === questions.length ? "Ver el resultado" : "Siguiente penalti"}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
