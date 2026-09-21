@@ -3,13 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
-import { stageOptions } from "@/data/stages";
+import { stageLabel } from "@/data/stages";
 import { Card } from "@/components/ui/Card";
 import { Chalkboard } from "@/components/ui/Chalkboard";
-
-function stageLabel(stage: StudentProfile["stage"]) {
-  return stageOptions.find((s) => s.value === stage)?.label ?? stage;
-}
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<StudentProfile[]>([]);

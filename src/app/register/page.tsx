@@ -6,7 +6,8 @@ import Link from "next/link";
 import { FirebaseError } from "firebase/app";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import type { Stage } from "@/types";
-import { stageOptions } from "@/data/stages";
+import { stageOptions, stageLabel, stageFitsAge, suggestedStage } from "@/data/stages";
+import { calculateAge } from "@/lib/students";
 import { avatarOptions } from "@/data/avatars";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
@@ -26,6 +27,7 @@ export default function RegisterPage() {
 
   const [name, setName] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [age, setAge] = useState<number | null>(null);
   const [stage, setStage] = useState<Stage | "">("");
   const [avatarEmoji, setAvatarEmoji] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +37,17 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Picking the birth date fills in the course that matches the age, so the
+  // usual case is right without thinking about it. It can still be changed by
+  // hand: a student who repeats or works at another level is normal here.
+  function handleBirthDate(value: string) {
+    setBirthDate(value);
+    const nextAge = calculateAge(value);
+    setAge(nextAge);
+    if (nextAge !== null) setStage(suggestedStage(nextAge));
+  }
+
+  const stageMismatch = age !== null && stage !== "" && !stageFitsAge(stage, age);
   const passwordsMatch = password.length > 0 && password === confirmPassword;
   const canSubmit =
     name.trim().length > 0 &&
@@ -95,9 +108,12 @@ export default function RegisterPage() {
               max={today}
               required
               value={birthDate}
-              onChange={(e) => setBirthDate(e.target.value)}
+              onChange={(e) => handleBirthDate(e.target.value)}
               className="w-full rounded-xl border-2 border-slate-200 p-2 text-sm focus:border-primary focus:outline-none"
             />
+            {age !== null && (
+              <p className="mt-1 text-xs text-slate-500">{age} años</p>
+            )}
           </div>
 
           <div>
@@ -122,6 +138,13 @@ export default function RegisterPage() {
             </select>
           </div>
         </div>
+
+        {stageMismatch && age !== null && (
+          <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+            Con {age} años lo normal sería <strong>{stageLabel(suggestedStage(age))}</strong>.
+            Puedes dejar este curso si repite o si trabaja en otro nivel.
+          </p>
+        )}
 
         <div>
           <span className="mb-1 block text-sm font-medium text-slate-700">Avatar</span>

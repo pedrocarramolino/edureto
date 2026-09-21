@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { getStudentProfile, calculateAge, type StudentProfile } from "@/lib/students";
-import { stageOptions } from "@/data/stages";
+import { stageLabel } from "@/data/stages";
 import { Card } from "@/components/ui/Card";
 import { StudentProgress } from "@/components/dashboard/StudentProgress";
 
@@ -49,7 +49,7 @@ export default function StudentDetailPage({
   }
 
   const age = calculateAge(student.birthDate);
-  const stageLabel = stageOptions.find((s) => s.value === student.stage)?.label ?? student.stage;
+  const stage = stageLabel(student.stage);
 
   return (
     <div className="space-y-6">
@@ -60,7 +60,7 @@ export default function StudentDetailPage({
         <div>
           <h1 className="font-heading text-2xl font-bold text-slate-900">{student.name}</h1>
           <p className="text-slate-500">
-            {age !== null ? `${age} años` : "Edad desconocida"} · {stageLabel}
+            {age !== null ? `${age} años` : "Edad desconocida"} · {stage}
           </p>
         </div>
         <Link
