@@ -11,10 +11,10 @@ export interface GameModeProps {
 
 /** Where each option sits inside the goal, as a percentage of the box. */
 const corners = [
-  { x: 20, y: 26, label: "arriba a la izquierda" },
-  { x: 80, y: 26, label: "arriba a la derecha" },
-  { x: 20, y: 66, label: "abajo a la izquierda" },
-  { x: 80, y: 66, label: "abajo a la derecha" },
+  { x: 24, y: 30, label: "arriba a la izquierda" },
+  { x: 76, y: 30, label: "arriba a la derecha" },
+  { x: 24, y: 58, label: "abajo a la izquierda" },
+  { x: 76, y: 58, label: "abajo a la derecha" },
 ];
 
 type Phase = "aiming" | "shot";
@@ -89,14 +89,17 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
       </p>
 
       {/* The goal. Each option is one of the four corners to shoot at. */}
-      <div className="relative aspect-[5/3] w-full overflow-hidden rounded-clay bg-gradient-to-b from-sky-200 to-emerald-300">
-        <div className="absolute inset-x-[6%] top-[10%] bottom-[22%] rounded-t-xl border-[6px] border-white bg-white/25 [background-image:linear-gradient(to_right,rgba(255,255,255,.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.5)_1px,transparent_1px)] [background-size:14px_14px]" />
+      <div className="relative aspect-[4/3] max-h-96 min-h-64 w-full overflow-hidden rounded-clay bg-gradient-to-b from-sky-300 to-sky-100">
+        {/* Grass, then the goal with its net on top of it. */}
+        <div className="absolute inset-x-0 bottom-0 h-[32%] bg-emerald-500" />
+        <div className="absolute inset-x-0 bottom-[30%] h-1 bg-white/70" />
+        <div className="absolute inset-x-[10%] top-[16%] bottom-[30%] rounded-t-md border-[8px] border-b-0 border-white bg-white/15 shadow-[inset_0_0_30px_rgba(0,0,0,.08)] [background-image:linear-gradient(to_right,rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:12px_12px]" />
 
         <div
-          className="absolute text-3xl transition-all duration-500 sm:text-4xl"
+          className="absolute text-4xl transition-all duration-500 sm:text-5xl"
           style={{
             left: `${keeperCorner ? keeperCorner.x : 50}%`,
-            top: `${keeperCorner ? keeperCorner.y : 46}%`,
+            top: `${keeperCorner ? keeperCorner.y : 48}%`,
             transform: "translate(-50%, -50%)",
           }}
           aria-hidden="true"
@@ -105,10 +108,10 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
         </div>
 
         <div
-          className="absolute text-2xl transition-all duration-500 ease-out sm:text-3xl"
+          className="absolute text-3xl transition-all duration-500 ease-out sm:text-4xl"
           style={{
             left: `${shotAt !== null ? corners[shotAt].x : 50}%`,
-            top: `${shotAt !== null ? corners[shotAt].y : 88}%`,
+            top: `${shotAt !== null ? corners[shotAt].y : 86}%`,
             transform: "translate(-50%, -50%)",
           }}
           aria-hidden="true"
