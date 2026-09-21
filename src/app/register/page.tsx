@@ -12,6 +12,7 @@ import { avatarOptions } from "@/data/avatars";
 import { Button } from "@/components/ui/Button";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Logo } from "@/components/ui/Logo";
+import { PlayfulBackground } from "@/components/ui/PlayfulBackground";
 
 const errorMessages: Record<string, string> = {
   "auth/email-already-in-use": "Ya existe una cuenta con ese correo.",
@@ -74,6 +75,7 @@ export default function RegisterPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
+      <PlayfulBackground />
       <div className="flex flex-col items-center text-center">
         <Link href="/">
           <Logo size="lg" withWordmark={false} />

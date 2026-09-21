@@ -27,3 +27,23 @@
 body {
   font-family: var(--font-body);
 }
+
+/* Slow drift for the decorative blobs behind the student zone. */
+@keyframes float-blob {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -24px, 0) scale(1.06);
+  }
+}
+
+.animate-blob {
+  animation: float-blob 18s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-blob {
+    animation: none;
+  }
+}

@@ -18,7 +18,7 @@ export function StudentNav() {
   const { signOutUser } = useAuth();
 
   return (
-    <nav className="sticky bottom-0 z-10 flex justify-around border-t-[3px] border-slate-200 bg-white p-2 sm:static sm:w-56 sm:flex-col sm:justify-start sm:gap-2 sm:border-r-[3px] sm:border-t-0 sm:p-4">
+    <nav className="sticky bottom-0 z-10 flex justify-around border-t-[3px] border-white/60 bg-white/80 p-2 backdrop-blur-md sm:static sm:w-56 sm:flex-col sm:justify-start sm:gap-2 sm:border-r-[3px] sm:border-t-0 sm:p-4">
       {links.map(({ href, label, Icon }) => {
         const active = pathname === href;
         return (

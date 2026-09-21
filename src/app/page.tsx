@@ -3,10 +3,12 @@ import { subjects } from "@/data/subjects";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Logo } from "@/components/ui/Logo";
 import { Chalkboard } from "@/components/ui/Chalkboard";
+import { PlayfulBackground } from "@/components/ui/PlayfulBackground";
 
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-10 px-6 py-16 text-center">
+      <PlayfulBackground />
       <div className="space-y-4">
         <Logo size="xl" withWordmark={false} className="justify-center" />
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">
