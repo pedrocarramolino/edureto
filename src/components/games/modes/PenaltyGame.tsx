@@ -19,6 +19,13 @@ const corners = [
 
 type Phase = "aiming" | "shot";
 
+const letters = ["A", "B", "C", "D"];
+
+/** Long answers do not fit in a corner of the goal, so those shoot by letter. */
+function needsLetters(options: string[]): boolean {
+  return options.some((option) => option.length > 10);
+}
+
 export function PenaltyGame({ questions, onComplete }: GameModeProps) {
   const [index, setIndex] = useState(0);
   const [goals, setGoals] = useState(0);
@@ -27,6 +34,7 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
 
   const question = questions[index];
   const finished = index >= questions.length;
+  const byLetter = question ? needsLetters(question.options) : false;
   const scored = shotAt !== null && shotAt === question?.correctIndex;
 
   // The keeper dives at the ball when the answer is wrong, and the wrong way
@@ -138,15 +146,30 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
               }`}
               style={{ left: `${corner.x}%`, top: `${corner.y}%` }}
             >
-              {option}
+              {byLetter ? letters[optionIndex] : option}
             </button>
           );
         })}
       </div>
 
+      {byLetter && (
+        <ul className="space-y-1 text-sm text-slate-600">
+          {question.options.map((option, optionIndex) => (
+            <li key={option} className="flex gap-2">
+              <span className="font-display font-bold text-slate-400">{letters[optionIndex]}</span>
+              <span>{option}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
       <div aria-live="polite" className="min-h-14 text-center">
         {phase === "aiming" ? (
-          <p className="text-sm text-slate-500">Chuta a la esquina con el resultado correcto.</p>
+          <p className="text-sm text-slate-500">
+            {byLetter
+              ? "Chuta a la esquina con la letra de la respuesta correcta."
+              : "Chuta a la esquina con el resultado correcto."}
+          </p>
         ) : (
           <>
             <p
