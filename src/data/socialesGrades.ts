@@ -134,6 +134,10 @@ const grades: GradeDefinition[] = [
       { question: "¿Qué eran las pirámides de Egipto?", options: ["Palacios", "Tumbas de faraones", "Templos griegos", "Murallas"], correctIndex: 1, explanation: "Las pirámides eran monumentos funerarios de los faraones." },
       { question: "¿Qué dos coordenadas sirven para localizar un punto en la Tierra?", options: ["Altura y anchura", "Latitud y longitud", "Norte y sur", "Escala y leyenda"], correctIndex: 1, explanation: "La latitud y la longitud son las coordenadas geográficas." },
       { question: "¿Qué lengua hablaban los antiguos romanos?", options: ["El griego", "El latín", "El árabe", "El castellano"], correctIndex: 1, explanation: "Los romanos hablaban latín, origen del castellano." },
+      { question: "¿Cómo se llama la línea imaginaria que divide la Tierra en dos hemisferios?", options: ["el meridiano de Greenwich", "el ecuador", "el trópico de Cáncer", "el círculo polar"], correctIndex: 1, explanation: "El ecuador separa el hemisferio norte del sur." },
+      { question: "¿Qué es un meridiano?", options: ["una línea que rodea la Tierra de este a oeste", "una línea imaginaria que va de polo a polo", "una cordillera", "una corriente marina"], correctIndex: 1, explanation: "Los meridianos van de norte a sur y marcan la longitud." },
+      { question: "¿Qué civilización construyó el Partenón?", options: ["la egipcia", "la griega", "la romana", "la mesopotámica"], correctIndex: 1, explanation: "El Partenón está en la Acrópolis de Atenas." },
+      { question: "¿Qué imperio conquistó Grecia en el siglo II a. C.?", options: ["el persa", "el romano", "el egipcio", "el macedonio"], correctIndex: 1, explanation: "Roma acabó dominando todo el Mediterráneo, Grecia incluida." },
     ],
   },
   {
@@ -151,6 +155,10 @@ const grades: GradeDefinition[] = [
       { question: "¿Qué estilo artístico usa arcos apuntados y grandes vidrieras?", options: ["El gótico", "El románico", "El neoclásico", "El mudéjar"], correctIndex: 0, explanation: "El gótico busca altura y luz con arcos apuntados y vidrieras." },
       { question: "¿Qué mide la tasa de natalidad?", options: ["Las muertes por cada mil habitantes", "Los nacimientos por cada mil habitantes", "La edad media de la población", "Los emigrantes"], correctIndex: 1, explanation: "La tasa de natalidad mide los nacimientos por cada mil habitantes en un año." },
       { question: "¿Quién fundó el islam?", options: ["Mahoma", "Abderramán III", "Almanzor", "Averroes"], correctIndex: 0, explanation: "El islam fue fundado por Mahoma en el siglo VII." },
+      { question: "¿Qué fue el Camino de Santiago en la Edad Media?", options: ["una ruta comercial de especias", "una ruta de peregrinación", "una calzada romana", "una muralla defensiva"], correctIndex: 1, explanation: "Miles de peregrinos cruzaban Europa hasta Compostela." },
+      { question: "¿Cómo se llamaban los nobles que recibían tierras a cambio de fidelidad?", options: ["siervos", "vasallos", "artesanos", "burgueses"], correctIndex: 1, explanation: "El vasallo juraba fidelidad al señor y recibía un feudo." },
+      { question: "¿Qué epidemia asoló Europa a mediados del siglo XIV?", options: ["la gripe española", "la peste negra", "el cólera", "la viruela"], correctIndex: 1, explanation: "La peste negra mató a un tercio de la población europea." },
+      { question: "¿Qué mide la densidad de población?", options: ["los nacimientos por año", "los habitantes por kilómetro cuadrado", "la edad media de la población", "las personas que emigran"], correctIndex: 1, explanation: "Relaciona la población con la superficie del territorio." },
     ],
   },
   {
@@ -168,6 +176,10 @@ const grades: GradeDefinition[] = [
       { question: "¿Quién pintó \"Las Meninas\"?", options: ["Goya", "Velázquez", "El Greco", "Murillo"], correctIndex: 1, explanation: "Las Meninas es una obra de Diego Velázquez." },
       { question: "¿Qué es la globalización?", options: ["El aislamiento de los países", "La creciente interdependencia económica y cultural entre países", "Un tipo de clima", "Una forma de gobierno"], correctIndex: 1, explanation: "La globalización conecta economías y culturas a escala mundial." },
       { question: "¿Qué dinastía reinó en España durante los siglos XVI y XVII?", options: ["Los Borbones", "Los Austrias", "Los Trastámara", "Los Omeyas"], correctIndex: 1, explanation: "Los Austrias reinaron desde Carlos I hasta Carlos II." },
+      { question: "¿Qué imperio desapareció en 1453 con la toma de Constantinopla?", options: ["el Imperio romano de Occidente", "el Imperio bizantino", "el Imperio otomano", "el Sacro Imperio"], correctIndex: 1, explanation: "La caída de Constantinopla puso fin al Imperio bizantino." },
+      { question: "¿Qué monarcas financiaron el viaje de Colón?", options: ["Carlos I y Felipe II", "los Reyes Católicos", "los Austrias menores", "los Borbones"], correctIndex: 1, explanation: "Isabel de Castilla y Fernando de Aragón apoyaron el proyecto." },
+      { question: "¿Qué actividades forman el sector cuaternario?", options: ["la agricultura y la pesca", "los servicios muy cualificados, como la investigación", "la industria pesada", "la construcción"], correctIndex: 1, explanation: "Investigación, innovación y tecnología forman el sector cuaternario." },
+      { question: "¿Qué es el éxodo rural?", options: ["el traslado de población del campo a la ciudad", "la vuelta de la ciudad al campo", "la emigración a otro país", "el turismo rural"], correctIndex: 0, explanation: "Es el abandono del campo para buscar trabajo en las ciudades." },
     ],
   },
   {
@@ -185,6 +197,10 @@ const grades: GradeDefinition[] = [
       { question: "¿Entre qué años tuvo lugar la Guerra Civil española?", options: ["1914-1918", "1931-1936", "1936-1939", "1939-1975"], correctIndex: 2, explanation: "La Guerra Civil duró de 1936 a 1939." },
       { question: "¿Cómo se llama el proceso que llevó a España a la democracia tras la muerte de Franco?", options: ["La Reconquista", "La Transición", "La Ilustración", "La Restauración"], correctIndex: 1, explanation: "La Transición culminó con la Constitución de 1978." },
       { question: "¿Qué fue la Guerra Fría?", options: ["Una guerra en el Polo Norte", "El enfrentamiento entre EE. UU. y la URSS sin guerra directa entre ellos", "Una guerra medieval", "La Primera Guerra Mundial"], correctIndex: 1, explanation: "Fue una rivalidad política, militar e ideológica entre dos bloques." },
+      { question: "¿Qué documento aprobaron los españoles en 1978?", options: ["el Estatuto de Autonomía", "la Constitución", "la Ley de Amnistía", "el Tratado de Roma"], correctIndex: 1, explanation: "La Constitución de 1978 es la norma fundamental de la democracia española." },
+      { question: "¿Qué muro cayó en 1989 y simbolizó el final de la Guerra Fría?", options: ["el muro de Adriano", "el muro de Berlín", "la línea Maginot", "el telón de acero de Viena"], correctIndex: 1, explanation: "La caída del muro de Berlín abrió la reunificación de Alemania." },
+      { question: "¿Qué ocurrió en la Revolución Rusa de 1917?", options: ["se restauró el zarismo", "los bolcheviques tomaron el poder", "empezó la Primera Guerra Mundial", "se creó la ONU"], correctIndex: 1, explanation: "La revolución acabó con el zar y llevó a los bolcheviques al poder." },
+      { question: "¿Qué organización se creó en 1945 para mantener la paz mundial?", options: ["la OTAN", "la ONU", "la Unión Europea", "la Sociedad de Naciones"], correctIndex: 1, explanation: "Las Naciones Unidas nacieron tras la Segunda Guerra Mundial." },
     ],
   },
 ];
