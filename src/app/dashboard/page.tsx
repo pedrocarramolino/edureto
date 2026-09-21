@@ -124,7 +124,9 @@ export default function DashboardHome() {
                   <p className="font-medium text-slate-800">{studentName(attempt.studentId)}</p>
                   <p className="text-slate-500">
                     {attempt.activityTitle}
-                    {attempt.isPlacementTest ? " (prueba de nivel)" : ""}
+                    {attempt.isPlacementTest && attempt.activityTitle !== "Prueba de nivel"
+                      ? " (prueba de nivel)"
+                      : ""}
                   </p>
                 </div>
                 <div className="shrink-0 text-right">

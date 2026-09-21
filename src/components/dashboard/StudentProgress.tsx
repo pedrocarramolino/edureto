@@ -157,15 +157,17 @@ export function StudentProgress({ studentId }: { studentId: string }) {
                   <tr key={attempt.id}>
                     <td className="py-2 pr-3 font-medium text-slate-800">
                       {attempt.activityTitle}
-                      {attempt.isPlacementTest && (
+                      {/* The badge would only repeat a title that already says it. */}
+                      {attempt.isPlacementTest && attempt.activityTitle !== "Prueba de nivel" && (
                         <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-normal text-slate-500">
                           prueba de nivel
                         </span>
                       )}
                     </td>
                     <td className="py-2 pr-3 text-slate-500">
-                      {subject ? `${subject.name} · ` : ""}
-                      {attempt.topic}
+                      {[subject?.name, attempt.topic !== attempt.activityTitle ? attempt.topic : null]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </td>
                     <td className="py-2 pr-3">
                       <span
