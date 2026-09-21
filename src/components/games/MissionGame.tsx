@@ -83,8 +83,9 @@ export function MissionGame({
 
   return (
     <div className="space-y-4">
+      {/* Only the step number: a step's label is often the answer itself. */}
       <p className="text-xs font-semibold uppercase text-slate-500">
-        Paso {stepIndex + 1} de {steps.length} · {currentStep.label}
+        Paso {stepIndex + 1} de {steps.length}
       </p>
       <ActivityPlayer key={currentStep.id} activity={stepActivity} onComplete={handleStepComplete} />
     </div>
