@@ -89,6 +89,8 @@ interface State {
   answers: Answer[];
   questionIndex: number;
   correctCount: number;
+  /** True once a wrong pellet has been eaten on the current question. */
+  missed: boolean;
   lives: number;
   status: "playing" | "caught" | "over";
   flash: { text: string; good: boolean } | null;
@@ -119,6 +121,7 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
       answers: placeAnswers(questions[0]),
       questionIndex: 0,
       correctCount: 0,
+      missed: false,
       lives: LIVES,
       status: "playing",
       flash: null,
@@ -164,12 +167,23 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
         }
 
         const eaten = answers.find((a) => a.x === pac.x && a.y === pac.y);
+        if (eaten && !eaten.correct) {
+          // Crossing a wrong answer must not cost the whole question: the
+          // pellet disappears, the question counts as failed and the student
+          // keeps looking for the right one.
+          return {
+            ...current,
+            pac,
+            ghosts: ghosts.map((ghost) => moveGhost(ghost, pac)),
+            answers: answers.filter((a) => a !== eaten),
+            missed: true,
+            flash: { text: `Esa no: ${eaten.value}`, good: false },
+          };
+        }
         if (eaten) {
           const isLast = questionIndex + 1 >= questions.length;
-          if (eaten.correct) correctCount += 1;
-          flash = eaten.correct
-            ? { text: "¡Bien! " + eaten.value, good: true }
-            : { text: `Esa no: ${eaten.value}`, good: false };
+          if (!current.missed) correctCount += 1;
+          flash = { text: "¡Bien! " + eaten.value, good: true };
           if (isLast) {
             return { ...current, pac, correctCount, questionIndex: questions.length, status: "over", flash };
           }
@@ -178,7 +192,7 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
           pac = { ...PAC_START };
           ghosts = GHOST_STARTS.map((ghost) => ({ ...ghost }));
           dirRef.current = null;
-          return { ...current, pac, ghosts, answers, questionIndex, correctCount, flash };
+          return { ...current, pac, ghosts, answers, questionIndex, correctCount, missed: false, flash };
         }
 
         ghosts = ghosts.map((ghost) => moveGhost(ghost, pac));
