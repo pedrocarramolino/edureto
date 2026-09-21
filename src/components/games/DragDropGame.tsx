@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { DragDropActivity } from "@/types";
+import type { ActivityResult, DragDropActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 
 export function DragDropGame({
@@ -9,7 +9,7 @@ export function DragDropGame({
   onComplete,
 }: {
   activity: DragDropActivity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   const [placements, setPlacements] = useState<Record<string, string>>({});
   const [checked, setChecked] = useState(false);
@@ -27,7 +27,8 @@ export function DragDropGame({
     return item ? placements[itemId] === item.targetZoneId : false;
   }
 
-  const allCorrect = activity.items.every((item) => isCorrectPlacement(item.id));
+  const wellPlaced = activity.items.filter((item) => isCorrectPlacement(item.id)).length;
+  const allCorrect = wellPlaced === activity.items.length;
 
   return (
     <div className="space-y-5">
@@ -85,7 +86,16 @@ export function DragDropGame({
           Comprobar
         </Button>
       ) : (
-        <Button variant="clay" onClick={() => onComplete(allCorrect)}>
+        <Button
+          variant="clay"
+          onClick={() =>
+            onComplete({
+              correct: allCorrect,
+              correctCount: wellPlaced,
+              totalCount: activity.items.length,
+            })
+          }
+        >
           Continuar
         </Button>
       )}

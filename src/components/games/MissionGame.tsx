@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MissionActivity } from "@/types";
+import type { ActivityResult, MissionActivity } from "@/types";
 import { getActivity } from "@/data/activities";
 import { shuffle } from "@/lib/shuffle";
 import { Button } from "@/components/ui/Button";
@@ -12,22 +12,23 @@ export function MissionGame({
   onComplete,
 }: {
   activity: MissionActivity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   const [steps, setSteps] = useState(activity.steps);
   const [stepIndex, setStepIndex] = useState(0);
-  const [results, setResults] = useState<boolean[]>([]);
+  const [results, setResults] = useState<ActivityResult[]>([]);
   const [started, setStarted] = useState(false);
 
   const currentStep = steps[stepIndex];
   const stepActivity = currentStep ? getActivity(currentStep.activityId) : undefined;
   const finished = stepIndex >= steps.length;
 
-  function handleStepComplete(correct: boolean) {
-    const nextResults = [...results, correct];
-    setResults(nextResults);
+  function handleStepComplete(result: ActivityResult) {
+    setResults((prev) => [...prev, result]);
     setStepIndex((prev) => prev + 1);
   }
+
+  const stepsCorrect = results.filter((r) => r.correct).length;
 
   if (!started) {
     return (
@@ -48,7 +49,7 @@ export function MissionGame({
   }
 
   if (finished) {
-    const allCorrect = results.every(Boolean);
+    const allCorrect = stepsCorrect === results.length;
     return (
       <div className="space-y-4 text-center">
         <p className="text-5xl" aria-hidden="true">
@@ -58,9 +59,18 @@ export function MissionGame({
           {allCorrect ? "¡Misión completada!" : "Misión terminada"}
         </p>
         <p className="text-sm text-slate-500">
-          {results.filter(Boolean).length} de {results.length} retos correctos
+          {stepsCorrect} de {results.length} retos correctos
         </p>
-        <Button variant="clay" onClick={() => onComplete(allCorrect)}>
+        <Button
+          variant="clay"
+          onClick={() =>
+            onComplete({
+              correct: allCorrect,
+              correctCount: results.reduce((sum, r) => sum + r.correctCount, 0),
+              totalCount: results.reduce((sum, r) => sum + r.totalCount, 0),
+            })
+          }
+        >
           Continuar
         </Button>
       </div>

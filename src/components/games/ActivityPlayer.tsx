@@ -1,4 +1,4 @@
-import type { Activity } from "@/types";
+import type { Activity, ActivityResult } from "@/types";
 import { MultipleChoiceGame } from "@/components/games/MultipleChoiceGame";
 import { DragDropGame } from "@/components/games/DragDropGame";
 import { BuildAnswerGame } from "@/components/games/BuildAnswerGame";
@@ -10,7 +10,7 @@ export function ActivityPlayer({
   onComplete,
 }: {
   activity: Activity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   switch (activity.type) {
     case "multiple_choice":

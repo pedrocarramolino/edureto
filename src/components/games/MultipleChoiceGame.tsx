@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MultipleChoiceActivity } from "@/types";
+import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 
 export function MultipleChoiceGame({
@@ -9,7 +9,7 @@ export function MultipleChoiceGame({
   onComplete,
 }: {
   activity: MultipleChoiceActivity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
@@ -54,7 +54,12 @@ export function MultipleChoiceGame({
           Comprobar
         </Button>
       ) : (
-        <Button variant="clay" onClick={() => onComplete(isCorrect)}>
+        <Button
+          variant="clay"
+          onClick={() =>
+            onComplete({ correct: isCorrect, correctCount: isCorrect ? 1 : 0, totalCount: 1 })
+          }
+        >
           Continuar
         </Button>
       )}

@@ -7,6 +7,8 @@ import { getSubject } from "@/data/subjects";
 import { activitiesBySubject, getPlacementTest } from "@/data/activities";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasTakenPlacementTest, markPlacementTestTaken } from "@/lib/placementTests";
+import { recordAttempt } from "@/lib/attempts";
+import type { ActivityResult } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Chalkboard } from "@/components/ui/Chalkboard";
@@ -35,7 +37,7 @@ export default function SubjectWorldPage({
   const [placementStatus, setPlacementStatus] = useState<PlacementStatus>(
     placementTest ? "checking" : "resolved",
   );
-  const [testFinished, setTestFinished] = useState(false);
+  const [testResult, setTestResult] = useState<ActivityResult | null>(null);
 
   useEffect(() => {
     if (!subject || !user || !placementTest) return;
@@ -64,7 +66,7 @@ export default function SubjectWorldPage({
           </div>
         </div>
 
-        {!testFinished && (
+        {!testResult && (
           <Chalkboard title="Prueba de nivel">
             {placementTest.narrative} Son {placementTest.steps.length} preguntas rápidas y no
             cuentan como un reto fallado.
@@ -72,12 +74,16 @@ export default function SubjectWorldPage({
         )}
 
         <div className="rounded-clay border-[3px] border-black/5 bg-white p-6 shadow-clay-sm">
-          {testFinished ? (
+          {testResult ? (
             <div className="space-y-4 text-center">
               <p className="text-5xl" aria-hidden="true">
                 🎯
               </p>
               <p className="font-display text-lg font-bold text-slate-800">¡Prueba completada!</p>
+              <p className="text-sm text-slate-500">
+                {testResult.correctCount} de {testResult.totalCount} respuestas correctas. Tu
+                profesora ya la puede ver.
+              </p>
               <Button variant="clay" onClick={() => setPlacementStatus("resolved")}>
                 Ver el mundo de {subject.worldName}
               </Button>
@@ -85,13 +91,20 @@ export default function SubjectWorldPage({
           ) : (
             <ActivityPlayer
               activity={placementTest}
-              onComplete={async () => {
+              onComplete={async (result) => {
+                setTestResult(result);
+                if (!user) return;
                 try {
-                  if (user) await markPlacementTestTaken(user.uid, subject.id);
-                } catch {
+                  await recordAttempt({
+                    studentId: user.uid,
+                    activity: placementTest,
+                    result,
+                    isPlacementTest: true,
+                  });
+                  await markPlacementTestTaken(user.uid, subject.id);
+                } catch (error) {
                   // Not fatal: worst case, the placement test shows again next visit.
-                } finally {
-                  setTestFinished(true);
+                  console.warn("No se ha podido guardar la prueba de nivel", error);
                 }
               }}
             />

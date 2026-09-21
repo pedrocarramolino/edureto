@@ -21,24 +21,6 @@ export interface Subject {
 
 export type SkillStatus = "necesita_practicar" | "en_progreso" | "consolidado";
 
-export interface Skill {
-  id: string;
-  subjectId: SubjectId;
-  name: string;
-  status: SkillStatus;
-}
-
-export interface Student {
-  id: string;
-  name: string;
-  age: number;
-  stage: Stage;
-  avatarEmoji: string;
-  skills: Skill[];
-  streakDays: number;
-  points: number;
-}
-
 export type ActivityType =
   | "multiple_choice"
   | "drag_drop"
@@ -115,22 +97,10 @@ export type Activity =
   | MissionActivity
   | OpenResponseActivity;
 
-export type ChallengeStatus = "pendiente" | "en_curso" | "completado";
-
-export interface Challenge {
-  id: string;
-  studentId: string;
-  activityId: string;
-  assignedBy: "profesora" | "sistema";
-  status: ChallengeStatus;
-  dueDate?: string;
-}
-
-export interface ActivityAttempt {
-  id: string;
-  studentId: string;
-  activityId: string;
-  completedAt: string;
+/** What a game hands back to whoever is playing it when the student finishes. */
+export interface ActivityResult {
+  /** True only when everything in the activity was right. */
   correct: boolean;
-  timeSpentSeconds: number;
+  correctCount: number;
+  totalCount: number;
 }

@@ -2,6 +2,11 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isProfesora() {
+      return request.auth != null
+             && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "profesora";
+    }
+
     // Each user can read their own role/profile doc, and a "profesora"
     // can also read every student profile (needed to list her students
     // in the dashboard). A user can create their own doc at signup
@@ -12,7 +17,7 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if request.auth != null && (
         request.auth.uid == uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "profesora"
+        isProfesora()
       );
       allow create: if request.auth != null
                     && request.auth.uid == uid
@@ -24,6 +29,34 @@ service cloud.firestore {
                     && request.auth.uid == uid
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["placementTestsTaken"]);
       allow delete: if false;
+    }
+
+    // One document per finished game. A student can only write attempts for
+    // themselves, and only ones that look like a real result; the teacher can
+    // read everything so the dashboard can show each student's progress.
+    // Nothing can be edited or deleted afterwards, so the history is a
+    // trustworthy record.
+    match /attempts/{attemptId} {
+      allow read: if request.auth != null && (
+        resource.data.studentId == request.auth.uid || isProfesora()
+      );
+      allow create: if request.auth != null
+                    && request.resource.data.studentId == request.auth.uid
+                    && request.resource.data.keys().hasOnly([
+                         "studentId", "activityId", "activityTitle", "subjectId",
+                         "topic", "stage", "correct", "correctCount", "totalCount",
+                         "isPlacementTest", "completedAt"
+                       ])
+                    && request.resource.data.activityId is string
+                    && request.resource.data.correct is bool
+                    && request.resource.data.isPlacementTest is bool
+                    && request.resource.data.correctCount is number
+                    && request.resource.data.totalCount is number
+                    && request.resource.data.correctCount >= 0
+                    && request.resource.data.correctCount <= request.resource.data.totalCount
+                    && request.resource.data.totalCount > 0
+                    && request.resource.data.completedAt == request.time;
+      allow update, delete: if false;
     }
 
     // No other collections are exposed yet.

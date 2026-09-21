@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { BuildAnswerActivity } from "@/types";
+import type { ActivityResult, BuildAnswerActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 
 export function BuildAnswerGame({
@@ -9,7 +9,7 @@ export function BuildAnswerGame({
   onComplete,
 }: {
   activity: BuildAnswerActivity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   const [built, setBuilt] = useState<string[]>([]);
   const [checked, setChecked] = useState(false);
@@ -72,7 +72,12 @@ export function BuildAnswerGame({
             </Button>
           </>
         ) : (
-          <Button variant="clay" onClick={() => onComplete(isCorrect)}>
+          <Button
+            variant="clay"
+            onClick={() =>
+              onComplete({ correct: isCorrect, correctCount: isCorrect ? 1 : 0, totalCount: 1 })
+            }
+          >
             Continuar
           </Button>
         )}

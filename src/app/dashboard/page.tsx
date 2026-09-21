@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
+import { listRecentAttempts, type Attempt } from "@/lib/attempts";
 import { Card } from "@/components/ui/Card";
 import { Chalkboard } from "@/components/ui/Chalkboard";
 
@@ -10,6 +11,8 @@ export default function DashboardHome() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [attemptsThisWeek, setAttemptsThisWeek] = useState(0);
 
   useEffect(() => {
     listStudents()
@@ -17,6 +20,22 @@ export default function DashboardHome() {
       .catch(() => setError("No se han podido cargar los alumnos. Inténtalo de nuevo más tarde."))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    listRecentAttempts(50)
+      .then((recentAttempts) => {
+        setAttempts(recentAttempts);
+        const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        setAttemptsThisWeek(
+          recentAttempts.filter((a) => a.completedAt && a.completedAt.getTime() >= weekAgo).length,
+        );
+      })
+      .catch(() => {
+        // The dashboard still works without the activity feed.
+      });
+  }, []);
+  const studentName = (uid: string) =>
+    students.find((s) => s.uid === uid)?.name ?? "Alumno";
 
   const recent = [...students]
     .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0))
@@ -28,10 +47,18 @@ export default function DashboardHome() {
         Vista rápida de tus alumnos.
       </Chalkboard>
 
-      <Card className="max-w-xs">
-        <p className="text-sm text-slate-500">Alumnos registrados</p>
-        <p className="text-3xl font-bold text-slate-900">{loading ? "…" : error ? "—" : students.length}</p>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2 lg:max-w-2xl">
+        <Card>
+          <p className="text-sm text-slate-500">Alumnos registrados</p>
+          <p className="text-3xl font-bold text-slate-900">
+            {loading ? "…" : error ? "—" : students.length}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-sm text-slate-500">Partidas en los últimos 7 días</p>
+          <p className="text-3xl font-bold text-slate-900">{attemptsThisWeek}</p>
+        </Card>
+      </div>
 
       <Card>
         <h2 className="mb-4 font-heading text-lg font-semibold text-slate-800">Altas recientes</h2>
@@ -73,6 +100,49 @@ export default function DashboardHome() {
                 </Link>
               );
             })}
+          </div>
+        )}
+      </Card>
+
+      <Card>
+        <h2 className="mb-4 font-heading text-lg font-semibold text-slate-800">
+          Actividad reciente
+        </h2>
+        {attempts.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            Todavía no hay partidas registradas. Aparecerán aquí en cuanto tus alumnos jueguen.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {attempts.slice(0, 8).map((attempt) => (
+              <Link
+                key={attempt.id}
+                href={`/dashboard/students/${attempt.studentId}`}
+                className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 p-3 text-sm hover:bg-slate-50"
+              >
+                <div>
+                  <p className="font-medium text-slate-800">{studentName(attempt.studentId)}</p>
+                  <p className="text-slate-500">
+                    {attempt.activityTitle}
+                    {attempt.isPlacementTest ? " (prueba de nivel)" : ""}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                      attempt.correct
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-amber-100 text-amber-700"
+                    }`}
+                  >
+                    {attempt.correctCount}/{attempt.totalCount}
+                  </span>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {attempt.completedAt ? attempt.completedAt.toLocaleDateString("es-ES") : "—"}
+                  </p>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </Card>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { OpenResponseActivity } from "@/types";
+import type { ActivityResult, OpenResponseActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 
 export function OpenResponseGame({
@@ -9,7 +9,7 @@ export function OpenResponseGame({
   onComplete,
 }: {
   activity: OpenResponseActivity;
-  onComplete: (correct: boolean) => void;
+  onComplete: (result: ActivityResult) => void;
 }) {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -31,7 +31,10 @@ export function OpenResponseGame({
           <p className="rounded-clay bg-amber-50 p-3 text-sm text-amber-700">
             Tu respuesta se ha guardado. La profesora la revisará y te dará su valoración.
           </p>
-          <Button variant="clay" onClick={() => onComplete(true)}>
+          <Button
+            variant="clay"
+            onClick={() => onComplete({ correct: true, correctCount: 1, totalCount: 1 })}
+          >
             Continuar
           </Button>
         </>

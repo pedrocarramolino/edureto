@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getStudentProfile, calculateAge, type StudentProfile } from "@/lib/students";
 import { stageOptions } from "@/data/stages";
 import { Card } from "@/components/ui/Card";
+import { StudentProgress } from "@/components/dashboard/StudentProgress";
 
 export default function StudentDetailPage({
   params,
@@ -90,13 +91,7 @@ export default function StudentDetailPage({
         </dl>
       </Card>
 
-      <Card>
-        <h2 className="mb-2 font-heading text-lg font-semibold text-slate-800">Progreso</h2>
-        <p className="text-sm text-slate-500">
-          Todavía no hay actividades ni habilidades registradas para este alumno. Esta sección se
-          activará cuando conectemos el seguimiento de partidas.
-        </p>
-      </Card>
+      <StudentProgress studentId={student.uid} />
     </div>
   );
 }
