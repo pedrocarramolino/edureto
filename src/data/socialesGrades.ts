@@ -217,7 +217,7 @@ export const socialesGradeMissions: MissionActivity[] = grades.map((grade) => ({
   stage: grade.stage,
   topic: grade.title,
   difficulty: grade.difficulty,
-  title: `Geografía e Historia · ${grade.title}`,
+  title: `${grade.stage === "eso" ? "Geografía e Historia" : "Medio social"} · ${grade.title}`,
   narrative: `Repasa ciencias sociales de ${grade.title}, en un orden distinto cada vez.`,
   badge: grade.badge,
   steps: grade.questions.map((_, index) => ({

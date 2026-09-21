@@ -218,7 +218,7 @@ export const cienciasGradeMissions: MissionActivity[] = grades.map((grade) => ({
   stage: grade.stage,
   topic: grade.title,
   difficulty: grade.difficulty,
-  title: `Ciencias · ${grade.title}`,
+  title: `${grade.stage === "eso" ? "Biología y Geología" : "Medio natural"} · ${grade.title}`,
   narrative: `Repasa ciencias de ${grade.title}, en un orden distinto cada vez.`,
   badge: grade.badge,
   steps: grade.questions.map((_, index) => ({
