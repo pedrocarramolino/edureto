@@ -41,10 +41,10 @@ export default async function ActivityReviewPage({
           </p>
         </div>
         <Link
-          href={`/student/play/${activity.id}`}
+          href={`/dashboard/activities/${activity.id}/probar`}
           className="ml-auto rounded-xl border-2 border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
-          Jugar como alumno
+          Probar el juego
         </Link>
       </div>
 

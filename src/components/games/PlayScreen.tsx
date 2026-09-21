@@ -8,13 +8,24 @@ import { recordAttempt } from "@/lib/attempts";
 import { ActivityPlayer } from "@/components/games/ActivityPlayer";
 import { Button } from "@/components/ui/Button";
 
-export function PlayScreen({ activity }: { activity: Activity }) {
+/**
+ * Plays an activity. In "preview" mode (the teacher trying a game out) the
+ * result is shown but nothing is saved, so her tries never count as a
+ * student's game.
+ */
+export function PlayScreen({
+  activity,
+  preview = false,
+}: {
+  activity: Activity;
+  preview?: boolean;
+}) {
   const { user } = useAuth();
   const [result, setResult] = useState<ActivityResult | null>(null);
 
   async function handleComplete(activityResult: ActivityResult) {
     setResult(activityResult);
-    if (!user) return;
+    if (preview || !user) return;
     try {
       await recordAttempt({ studentId: user.uid, activity, result: activityResult });
     } catch (error) {
@@ -42,8 +53,10 @@ export function PlayScreen({ activity }: { activity: Activity }) {
           <Button variant="clay-secondary" onClick={() => setResult(null)}>
             Jugar de nuevo
           </Button>
-          <Link href="/student/progress">
-            <Button variant="clay">Ver mi progreso</Button>
+          <Link href={preview ? `/dashboard/activities/${activity.id}` : "/student/progress"}>
+            <Button variant="clay">
+              {preview ? "Ver las respuestas correctas" : "Ver mi progreso"}
+            </Button>
           </Link>
         </div>
       </div>
