@@ -22,12 +22,21 @@ service cloud.firestore {
       allow create: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.role == "alumno";
-      // A student may update only their own "placementTestsTaken" list
-      // (which subject placement tests they've already done) — nothing
-      // else about the doc, so this can't be used to change role/name/etc.
+      // Two narrow updates are allowed, each limited to a single field:
+      // a student may add to their own "placementTestsTaken" list (which
+      // subject placement tests they've already done), and a profesora may
+      // correct a student's "stage" (their school year) from her panel.
+      // Nothing else about the doc can be touched, so neither path can be
+      // used to change role/name/email.
       allow update: if request.auth != null
                     && request.auth.uid == uid
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["placementTestsTaken"]);
+      allow update: if isProfesora()
+                    && resource.data.role == "alumno"
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["stage"])
+                    && request.resource.data.stage in [
+                         "infantil", "primaria_inicial", "primaria_superior", "eso"
+                       ];
       allow delete: if false;
     }
 

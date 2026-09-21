@@ -1,4 +1,13 @@
-import { collection, doc, getDoc, getDocs, query, where, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Stage } from "@/types";
 
@@ -37,6 +46,11 @@ export async function getStudentProfile(uid: string): Promise<StudentProfile | n
   const snap = await getDoc(doc(db, "users", uid));
   if (!snap.exists()) return null;
   return toStudentProfile(snap.id, snap.data());
+}
+
+/** Corrects a student's school year. Only a "profesora" is allowed to do this. */
+export async function updateStudentStage(uid: string, stage: Stage): Promise<void> {
+  await updateDoc(doc(db, "users", uid), { stage });
 }
 
 export function calculateAge(birthDate: string): number | null {

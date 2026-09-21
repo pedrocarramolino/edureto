@@ -2,8 +2,14 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { getStudentProfile, calculateAge, type StudentProfile } from "@/lib/students";
-import { stageLabel } from "@/data/stages";
+import {
+  getStudentProfile,
+  updateStudentStage,
+  calculateAge,
+  type StudentProfile,
+} from "@/lib/students";
+import { stageOptions, stageLabel, stageFitsAge, suggestedStage } from "@/data/stages";
+import type { Stage } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { StudentProgress } from "@/components/dashboard/StudentProgress";
 
@@ -15,6 +21,7 @@ export default function StudentDetailPage({
   const { id } = use(params);
   const [student, setStudent] = useState<StudentProfile | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
+  const [stageStatus, setStageStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   useEffect(() => {
     getStudentProfile(id)
@@ -50,6 +57,22 @@ export default function StudentDetailPage({
 
   const age = calculateAge(student.birthDate);
   const stage = stageLabel(student.stage);
+  const stageMismatch = age !== null && !stageFitsAge(student.stage, age);
+
+  // The course is saved as soon as it is picked; on failure the old one comes
+  // back, so what is on screen always matches what is stored.
+  async function changeStage(next: Stage) {
+    const previous = student as StudentProfile;
+    setStudent({ ...previous, stage: next });
+    setStageStatus("saving");
+    try {
+      await updateStudentStage(previous.uid, next);
+      setStageStatus("saved");
+    } catch {
+      setStudent(previous);
+      setStageStatus("error");
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -88,7 +111,42 @@ export default function StudentDetailPage({
               {student.createdAt ? student.createdAt.toLocaleDateString("es-ES") : "—"}
             </dd>
           </div>
+          <div>
+            <dt className="text-slate-500">
+              <label htmlFor="stage">Curso</label>
+            </dt>
+            <dd className="mt-1 flex items-center gap-2">
+              <select
+                id="stage"
+                value={student.stage}
+                disabled={stageStatus === "saving"}
+                onChange={(e) => changeStage(e.target.value as Stage)}
+                className="rounded-xl border-2 border-slate-200 p-2 text-sm focus:border-primary focus:outline-none disabled:opacity-60"
+              >
+                {stageOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              {stageStatus === "saving" && <span className="text-xs text-slate-400">Guardando…</span>}
+              {stageStatus === "saved" && <span className="text-xs text-emerald-600">Guardado</span>}
+            </dd>
+          </div>
         </dl>
+
+        {stageStatus === "error" && (
+          <p role="alert" className="mt-3 text-sm text-rose-600">
+            No se ha podido guardar el curso. Inténtalo de nuevo.
+          </p>
+        )}
+
+        {stageMismatch && age !== null && (
+          <p className="mt-3 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+            Con {age} años lo normal sería <strong>{stageLabel(suggestedStage(age))}</strong>.
+            Puedes dejar este curso si repite o si trabaja en otro nivel.
+          </p>
+        )}
       </Card>
 
       <StudentProgress studentId={student.uid} />
