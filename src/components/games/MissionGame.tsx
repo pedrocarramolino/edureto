@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/Button";
 import { ActivityPlayer } from "@/components/games/ActivityPlayer";
 import { PenaltyGame } from "@/components/games/modes/PenaltyGame";
 import { QuizShowGame } from "@/components/games/modes/QuizShowGame";
+import { PacmanGame } from "@/components/games/modes/PacmanGame";
 
-type Mode = "preguntas" | "penaltis" | "concurso";
+type Mode = "preguntas" | "penaltis" | "concurso" | "comecocos";
 
 /** The arcade modes need every step to be a question with options. */
 function questionsOf(activity: MissionActivity): MultipleChoiceActivity[] {
@@ -72,6 +73,9 @@ export function MissionGame({
                 <Button variant="clay-secondary" onClick={() => start("concurso")}>
                   🎬 Concurso
                 </Button>
+                <Button variant="clay-secondary" onClick={() => start("comecocos")}>
+                  👾 Comecocos
+                </Button>
               </>
             )}
           </div>
@@ -86,6 +90,10 @@ export function MissionGame({
 
   if (mode === "concurso") {
     return <QuizShowGame questions={questions} onComplete={onComplete} />;
+  }
+
+  if (mode === "comecocos") {
+    return <PacmanGame questions={questions} onComplete={onComplete} />;
   }
 
   if (finished) {

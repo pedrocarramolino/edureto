@@ -19,10 +19,10 @@ const corners = [
 
 type Phase = "aiming" | "shot";
 
-const letters = ["A", "B", "C", "D"];
+export const letters = ["A", "B", "C", "D"];
 
-/** Long answers do not fit in a corner of the goal, so those shoot by letter. */
-function needsLetters(options: string[]): boolean {
+/** Long answers do not fit in a corner or a maze cell, so those use letters. */
+export function needsLetters(options: string[]): boolean {
   return options.some((option) => option.length > 10);
 }
 
