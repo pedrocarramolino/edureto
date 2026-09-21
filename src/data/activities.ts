@@ -13,32 +13,38 @@ import { cienciasGradeMissions, cienciasGradeQuestions } from "@/data/cienciasGr
 import { socialesGradeMissions, socialesGradeQuestions } from "@/data/socialesGrades";
 import { logicaGradeMissions, logicaGradeQuestions } from "@/data/logicaGrades";
 
-const tabla7Facts: { factor: number; options: string[]; correctIndex: number }[] = [
-  { factor: 1, options: ["7", "14", "17", "1"], correctIndex: 0 },
-  { factor: 2, options: ["12", "14", "21", "16"], correctIndex: 1 },
-  { factor: 3, options: ["18", "24", "21", "14"], correctIndex: 2 },
-  { factor: 4, options: ["24", "28", "32", "21"], correctIndex: 1 },
-  { factor: 5, options: ["30", "40", "35", "42"], correctIndex: 2 },
-  { factor: 6, options: ["36", "42", "48", "49"], correctIndex: 1 },
-  { factor: 7, options: ["42", "47", "49", "56"], correctIndex: 2 },
-  { factor: 8, options: ["54", "56", "63", "48"], correctIndex: 1 },
-  { factor: 9, options: ["56", "63", "69", "72"], correctIndex: 1 },
-  { factor: 10, options: ["60", "77", "70", "100"], correctIndex: 2 },
+// A mix of every table from 2 to 10. Options are not in ascending order on
+// purpose: the right answer must not always sit in the same place.
+const tablasFacts: { a: number; b: number; options: string[]; correctIndex: number }[] = [
+  { a: 2, b: 7, options: ["14", "12", "16", "21"], correctIndex: 0 },
+  { a: 3, b: 8, options: ["18", "21", "27", "24"], correctIndex: 3 },
+  { a: 4, b: 6, options: ["20", "28", "24", "30"], correctIndex: 2 },
+  { a: 5, b: 9, options: ["40", "45", "54", "50"], correctIndex: 1 },
+  { a: 6, b: 7, options: ["42", "36", "48", "49"], correctIndex: 0 },
+  { a: 7, b: 8, options: ["49", "54", "63", "56"], correctIndex: 3 },
+  { a: 8, b: 4, options: ["24", "32", "28", "36"], correctIndex: 1 },
+  { a: 9, b: 6, options: ["45", "63", "54", "56"], correctIndex: 2 },
+  { a: 3, b: 9, options: ["27", "21", "24", "36"], correctIndex: 0 },
+  { a: 10, b: 7, options: ["60", "77", "100", "70"], correctIndex: 3 },
+  { a: 6, b: 8, options: ["42", "48", "46", "54"], correctIndex: 1 },
+  { a: 9, b: 9, options: ["72", "90", "81", "99"], correctIndex: 2 },
 ];
 
-const tabla7Activities: MultipleChoiceActivity[] = tabla7Facts.map(({ factor, options, correctIndex }) => ({
-  id: `a1-${factor}`,
-  type: "multiple_choice",
-  subjectId: "matematicas",
-  stage: "primaria_inicial",
-  topic: "Tabla del 7",
-  difficulty: 1,
-  title: `7 × ${factor}`,
-  question: `¿Cuánto es 7 × ${factor}?`,
-  options,
-  correctIndex,
-  explanation: `7 × ${factor} = ${7 * factor}.`,
-}));
+const tablasActivities: MultipleChoiceActivity[] = tablasFacts.map(
+  ({ a, b, options, correctIndex }, index) => ({
+    id: `a1-${index + 1}`,
+    type: "multiple_choice",
+    subjectId: "matematicas",
+    stage: "primaria_inicial",
+    topic: "Tablas de multiplicar",
+    difficulty: 1,
+    title: `${a} × ${b}`,
+    question: `¿Cuánto es ${a} × ${b}?`,
+    options,
+    correctIndex,
+    explanation: `${a} × ${b} = ${a * b}.`,
+  }),
+);
 
 const frasesFacts: { sentence: string[]; pieces: string[] }[] = [
   { sentence: ["I", "have", "a", "dog"], pieces: ["dog", "I", "a", "have"] },
@@ -167,13 +173,14 @@ export const activities: Activity[] = [
     stage: "primaria_inicial",
     topic: "Multiplicaciones",
     difficulty: 1,
-    title: "La tabla del 7",
-    narrative: "Repasa las 10 multiplicaciones de la tabla del 7, en un orden distinto cada vez.",
-    badge: "🔢 Maestro del 7",
-    steps: tabla7Facts.map(({ factor }) => ({
-      id: `st-a1-${factor}`,
-      label: `7 × ${factor}`,
-      activityId: `a1-${factor}`,
+    title: "Las tablas de multiplicar",
+    narrative:
+      "12 multiplicaciones de todas las tablas, del 2 al 10, mezcladas y en un orden distinto cada vez.",
+    badge: "🔢 Maestro de las tablas",
+    steps: tablasFacts.map(({ a, b }, index) => ({
+      id: `st-a1-${index + 1}`,
+      label: `${a} × ${b}`,
+      activityId: `a1-${index + 1}`,
     })),
   },
   {
@@ -262,7 +269,7 @@ export const activities: Activity[] = [
 // These only exist as steps inside their parent missions, not as standalone
 // library entries.
 const hiddenActivities: Activity[] = [
-  ...tabla7Activities,
+  ...tablasActivities,
   ...frasesActivities,
   ...ecosistemaActivities,
   cadenaAlimentariaActivity,
