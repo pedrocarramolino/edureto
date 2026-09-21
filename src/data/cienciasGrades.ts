@@ -189,11 +189,20 @@ const grades: GradeDefinition[] = [
   },
 ];
 
+/**
+ * The same content lands in a different subject depending on the stage: in
+ * Primaria science is part of Conocimiento del Medio, and in ESO it becomes
+ * Biología y Geología.
+ */
+function subjectFor(stage: Stage) {
+  return stage === "eso" ? ("biologia_geologia" as const) : ("conocimiento_medio" as const);
+}
+
 export const cienciasGradeQuestions: MultipleChoiceActivity[] = grades.flatMap((grade) =>
   grade.questions.map((q, index) => ({
     id: `${grade.id}-${index + 1}`,
     type: "multiple_choice" as const,
-    subjectId: "ciencias_naturales" as const,
+    subjectId: subjectFor(grade.stage),
     stage: grade.stage,
     topic: grade.title,
     difficulty: grade.difficulty,
@@ -205,11 +214,11 @@ export const cienciasGradeQuestions: MultipleChoiceActivity[] = grades.flatMap((
 export const cienciasGradeMissions: MissionActivity[] = grades.map((grade) => ({
   id: `ciencias-${grade.id}`,
   type: "mission",
-  subjectId: "ciencias_naturales",
+  subjectId: subjectFor(grade.stage),
   stage: grade.stage,
   topic: grade.title,
   difficulty: grade.difficulty,
-  title: `Ciencias Naturales · ${grade.title}`,
+  title: `Ciencias · ${grade.title}`,
   narrative: `Repasa ciencias de ${grade.title}, en un orden distinto cada vez.`,
   badge: grade.badge,
   steps: grade.questions.map((_, index) => ({

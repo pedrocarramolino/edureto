@@ -19,6 +19,10 @@ const typeLabels: Record<string, string> = {
 export default function ActivitiesLibraryPage() {
   const [filter, setFilter] = useState<SubjectId | "all">("all");
   const visibleActivities = activities.filter((a) => filter === "all" || a.subjectId === filter);
+  // Only subjects that already have activities; the rest would filter to nothing.
+  const withActivities = subjects.filter((subject) =>
+    activities.some((a) => a.subjectId === subject.id),
+  );
 
   return (
     <div className="space-y-6">
@@ -44,7 +48,7 @@ export default function ActivitiesLibraryPage() {
         >
           Todas
         </button>
-        {subjects.map((subject) => (
+        {withActivities.map((subject) => (
           <button
             key={subject.id}
             onClick={() => setFilter(subject.id)}

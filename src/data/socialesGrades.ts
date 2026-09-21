@@ -189,11 +189,19 @@ const grades: GradeDefinition[] = [
   },
 ];
 
+/**
+ * In Primaria the social part belongs to Conocimiento del Medio; in ESO it is
+ * its own subject, Geografía e Historia.
+ */
+function subjectFor(stage: Stage) {
+  return stage === "eso" ? ("geografia_historia" as const) : ("conocimiento_medio" as const);
+}
+
 export const socialesGradeQuestions: MultipleChoiceActivity[] = grades.flatMap((grade) =>
   grade.questions.map((q, index) => ({
     id: `${grade.id}-${index + 1}`,
     type: "multiple_choice" as const,
-    subjectId: "ciencias_sociales" as const,
+    subjectId: subjectFor(grade.stage),
     stage: grade.stage,
     topic: grade.title,
     difficulty: grade.difficulty,
@@ -205,11 +213,11 @@ export const socialesGradeQuestions: MultipleChoiceActivity[] = grades.flatMap((
 export const socialesGradeMissions: MissionActivity[] = grades.map((grade) => ({
   id: `sociales-${grade.id}`,
   type: "mission",
-  subjectId: "ciencias_sociales",
+  subjectId: subjectFor(grade.stage),
   stage: grade.stage,
   topic: grade.title,
   difficulty: grade.difficulty,
-  title: `Ciencias Sociales · ${grade.title}`,
+  title: `Geografía e Historia · ${grade.title}`,
   narrative: `Repasa ciencias sociales de ${grade.title}, en un orden distinto cada vez.`,
   badge: grade.badge,
   steps: grade.questions.map((_, index) => ({

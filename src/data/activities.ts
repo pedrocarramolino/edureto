@@ -134,7 +134,7 @@ const ecosistemaQuestions: Omit<MultipleChoiceActivity, "id" | "type" | "subject
 const ecosistemaActivities: MultipleChoiceActivity[] = ecosistemaQuestions.map((q, index) => ({
   id: `a4-mc-${index + 1}`,
   type: "multiple_choice",
-  subjectId: "ciencias_naturales",
+  subjectId: "conocimiento_medio",
   stage: "primaria_superior",
   topic: "Ecosistemas",
   difficulty: 2,
@@ -144,7 +144,7 @@ const ecosistemaActivities: MultipleChoiceActivity[] = ecosistemaQuestions.map((
 const cadenaAlimentariaActivity: DragDropActivity = {
   id: "a4-dd-1",
   type: "drag_drop",
-  subjectId: "ciencias_naturales",
+  subjectId: "conocimiento_medio",
   stage: "primaria_superior",
   topic: "Ecosistemas",
   difficulty: 2,
@@ -231,7 +231,7 @@ export const activities: Activity[] = [
   {
     id: "a4",
     type: "mission",
-    subjectId: "ciencias_naturales",
+    subjectId: "conocimiento_medio",
     stage: "primaria_superior",
     topic: "Ecosistemas",
     difficulty: 2,

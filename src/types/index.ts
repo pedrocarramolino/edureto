@@ -1,11 +1,38 @@
 export type Stage = "infantil" | "primaria_inicial" | "primaria_superior" | "eso";
 
+/**
+ * The subjects of the Valencian curriculum (LOMLOE) that the app covers, plus
+ * "logica", which is not a school subject but a reinforcement world.
+ */
 export type SubjectId =
+  // Primaria y ESO
   | "lengua"
+  | "valenciano"
   | "matematicas"
   | "ingles"
-  | "ciencias_naturales"
-  | "ciencias_sociales"
+  | "educacion_fisica"
+  | "valores"
+  | "religion"
+  // Solo Primaria
+  | "conocimiento_medio"
+  | "educacion_artistica"
+  // Solo ESO
+  | "geografia_historia"
+  | "biologia_geologia"
+  | "fisica_quimica"
+  | "tecnologia"
+  | "musica"
+  | "plastica"
+  | "digitalizacion"
+  | "economia"
+  | "expresion_artistica"
+  | "fopp"
+  | "latin"
+  | "segunda_lengua"
+  | "tecnologia_4"
+  | "optativas"
+  | "tutoria"
+  // Refuerzo, fuera del currículo
   | "logica";
 
 export interface Subject {
@@ -17,6 +44,10 @@ export interface Subject {
   description: string;
   /** Sub-category breakdown shown on the subject's world page (e.g. "Sumas", "Restas"). */
   topics: string[];
+  /** School stages where this subject is taught. */
+  stages: Stage[];
+  /** Shown next to the name, e.g. "Solo 4.º de ESO". */
+  note?: string;
 }
 
 export type SkillStatus = "necesita_practicar" | "en_progreso" | "consolidado";

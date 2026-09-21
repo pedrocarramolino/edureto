@@ -12,6 +12,8 @@ import { Chalkboard } from "@/components/ui/Chalkboard";
 export default function GamesZonePage() {
   const [filter, setFilter] = useState<SubjectId | "all">("all");
   const visibleActivities = activities.filter((a) => filter === "all" || a.subjectId === filter);
+  // Only subjects that already have games: a row of empty filters is noise.
+  const playable = subjects.filter((subject) => activities.some((a) => a.subjectId === subject.id));
 
   return (
     <div className="space-y-6">
@@ -28,7 +30,7 @@ export default function GamesZonePage() {
         >
           Todos
         </button>
-        {subjects.map((subject) => (
+        {playable.map((subject) => (
           <button
             key={subject.id}
             onClick={() => setFilter(subject.id)}

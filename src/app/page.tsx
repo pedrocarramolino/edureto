@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { subjects } from "@/data/subjects";
+import { activities } from "@/data/activities";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Logo } from "@/components/ui/Logo";
 import { Chalkboard } from "@/components/ui/Chalkboard";
@@ -33,18 +34,21 @@ export default function Home() {
       </Chalkboard>
 
       <div className="grid w-full gap-3 sm:grid-cols-3">
-        {subjects.slice(0, 6).map((subject) => (
-          <div
-            key={subject.id}
-            className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left"
-          >
-            <WorldBadge subject={subject} size="sm" />
-            <div>
-              <p className="font-heading font-semibold text-slate-800">{subject.worldName}</p>
-              <p className="text-xs text-slate-500">{subject.name}</p>
+        {subjects
+          .filter((subject) => activities.some((a) => a.subjectId === subject.id))
+          .slice(0, 6)
+          .map((subject) => (
+            <div
+              key={subject.id}
+              className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 text-left"
+            >
+              <WorldBadge subject={subject} size="sm" />
+              <div>
+                <p className="font-heading font-semibold text-slate-800">{subject.worldName}</p>
+                <p className="text-xs text-slate-500">{subject.name}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </main>
   );
