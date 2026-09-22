@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import type { GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const MAX_PAIRS = 6;
+/** Beyond this, a card holds a sentence rather than a word or a number. */
+const LONG_TEXT = 40;
 const BACK_COLORS = ["#4f46e5", "#ea580c", "#16a34a", "#0891b2", "#db2777", "#ca8a04"];
 
 interface Card {
@@ -16,17 +18,26 @@ interface Card {
   text: string;
 }
 
-function buildCards(questions: MultipleChoiceActivity[]): Card[] {
-  const chosen = shuffle(questions).slice(0, MAX_PAIRS);
+/**
+ * Deals the deck. With long texts — ESO questions can be a whole sentence —
+ * it deals fewer, wider cards, so nothing ends up cramped.
+ */
+function buildDeck(questions: MultipleChoiceActivity[]): { cards: Card[]; compact: boolean } {
+  const sample = shuffle(questions).slice(0, MAX_PAIRS);
+  const longest = Math.max(
+    ...sample.flatMap((q) => [q.question.length, q.options[q.correctIndex].length]),
+  );
+  const compact = longest <= LONG_TEXT;
+  const chosen = compact ? sample : sample.slice(0, 4);
   const cards = chosen.flatMap((q, pair) => [
     { key: `q-${pair}`, pair, kind: "pregunta" as const, text: q.question },
     { key: `a-${pair}`, pair, kind: "respuesta" as const, text: q.options[q.correctIndex] },
   ]);
-  return shuffle(cards);
+  return { cards: shuffle(cards), compact };
 }
 
 export function PairsGame({ questions, onComplete }: GameModeProps) {
-  const [cards] = useState(() => buildCards(questions));
+  const [{ cards, compact }] = useState(() => buildDeck(questions));
   const [flipped, setFlipped] = useState<number[]>([]);
   const [matched, setMatched] = useState<number[]>([]);
   const [failedPairs, setFailedPairs] = useState<number[]>([]);
@@ -104,7 +115,11 @@ export function PairsGame({ questions, onComplete }: GameModeProps) {
         Busca cada pregunta y su respuesta correcta.
       </p>
 
-      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3">
+      <div
+        className={`grid gap-2 sm:gap-3 ${
+          compact ? "grid-cols-3 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4"
+        }`}
+      >
         {cards.map((card, index) => {
           const isUp = flipped.includes(index) || matched.includes(index);
           const isMatched = matched.includes(index);
@@ -114,7 +129,9 @@ export function PairsGame({ questions, onComplete }: GameModeProps) {
               onClick={() => flip(index)}
               disabled={isMatched}
               aria-label={isUp ? `${card.kind}: ${card.text}` : "Carta boca abajo"}
-              className={`flex min-h-24 cursor-pointer items-center justify-center rounded-clay border-[3px] p-2 text-center text-xs font-semibold leading-tight transition-all duration-200 disabled:cursor-default sm:min-h-28 sm:text-sm ${
+              className={`flex cursor-pointer items-center justify-center overflow-hidden rounded-clay border-[3px] p-2 text-center font-semibold leading-tight break-words transition-all duration-200 disabled:cursor-default ${
+                compact ? "min-h-24 text-xs sm:min-h-28 sm:text-sm" : "min-h-32 text-[11px] sm:min-h-36 sm:text-xs"
+              } ${
                 isMatched
                   ? "border-emerald-500 bg-emerald-50 text-emerald-800"
                   : isUp
