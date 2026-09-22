@@ -25,6 +25,10 @@ const COLS = MAZE[0].length;
 const ROWS = MAZE.length;
 const TICK_MS = 190;
 const LIVES = 3;
+/** Los fantasmas se mueven una de cada dos vueltas: la mitad de rápido que tú. */
+const GHOST_EVERY = 2;
+/** Vueltas de margen al empezar y tras cada vida, para colocarse sin agobios. */
+const GRACE_TICKS = 12;
 
 const PAC_START = { x: 7, y: 3 };
 const GHOST_STARTS = [
@@ -83,6 +87,8 @@ function placeAnswers(question: MultipleChoiceActivity): Answer[] {
 }
 
 interface State {
+  /** Vueltas de reloj desde que empezó esta vida. */
+  tick: number;
   pac: Pos;
   dir: Dir;
   ghosts: Pos[];
@@ -115,6 +121,7 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
   const start = useCallback(() => {
     dirRef.current = null;
     setState({
+      tick: 0,
       pac: { ...PAC_START },
       dir: null,
       ghosts: GHOST_STARTS.map((ghost) => ({ ...ghost })),
@@ -159,6 +166,7 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
       setState((current) => {
         if (!current || current.status !== "playing") return current;
         let { pac, ghosts, answers, questionIndex, correctCount, lives, flash } = current;
+        const tick = current.tick + 1;
         const dir = dirRef.current;
 
         if (dir) {
@@ -173,8 +181,8 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
           // keeps looking for the right one.
           return {
             ...current,
+            tick,
             pac,
-            ghosts: ghosts.map((ghost) => moveGhost(ghost, pac)),
             answers: answers.filter((a) => a !== eaten),
             missed: true,
             flash: { text: `Esa no: ${eaten.value}`, good: false },
@@ -185,23 +193,29 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
           if (!current.missed) correctCount += 1;
           flash = { text: "¡Bien! " + eaten.value, good: true };
           if (isLast) {
-            return { ...current, pac, correctCount, questionIndex: questions.length, status: "over", flash };
+            return { ...current, tick, pac, correctCount, questionIndex: questions.length, status: "over", flash };
           }
           questionIndex += 1;
           answers = placeAnswers(questions[questionIndex]);
           pac = { ...PAC_START };
           ghosts = GHOST_STARTS.map((ghost) => ({ ...ghost }));
           dirRef.current = null;
-          return { ...current, pac, ghosts, answers, questionIndex, correctCount, missed: false, flash };
+          return { ...current, tick: 0, pac, ghosts, answers, questionIndex, correctCount, missed: false, flash };
         }
 
-        ghosts = ghosts.map((ghost) => moveGhost(ghost, pac));
+        // Los fantasmas esperan al principio y luego van a media velocidad. Si
+        // salen a por ti desde el primer instante y corren tanto como tú, con
+        // los botones de una tablet no hay forma de escapar.
+        if (tick > GRACE_TICKS && tick % GHOST_EVERY === 0) {
+          ghosts = ghosts.map((ghost) => moveGhost(ghost, pac));
+        }
 
         if (ghosts.some((ghost) => ghost.x === pac.x && ghost.y === pac.y)) {
           lives -= 1;
           dirRef.current = null;
           return {
             ...current,
+            tick: 0,
             pac: { ...PAC_START },
             ghosts: GHOST_STARTS.map((ghost) => ({ ...ghost })),
             lives,
@@ -210,11 +224,21 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
           };
         }
 
-        return { ...current, pac, ghosts, dir, flash };
+        return { ...current, tick, pac, ghosts, dir, flash };
       });
     }, TICK_MS);
     return () => clearInterval(timer);
   }, [state?.status, questions]);
+
+  const atrapado = state?.status === "caught";
+  useEffect(() => {
+    if (!atrapado) return;
+    const reanudar = setTimeout(
+      () => setState((s) => (s ? { ...s, tick: 0, status: "playing", flash: null } : s)),
+      1600,
+    );
+    return () => clearTimeout(reanudar);
+  }, [atrapado]);
 
   if (!state) {
     return (
@@ -359,14 +383,9 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
       </div>
 
       {state.status === "caught" ? (
-        <div className="flex justify-center">
-          <Button
-            variant="clay"
-            onClick={() => setState((s) => (s ? { ...s, status: "playing", flash: null } : s))}
-          >
-            Seguir jugando
-          </Button>
-        </div>
+        <p className="text-center text-sm font-semibold text-slate-500">
+          Vuelves a empezar en tu esquina…
+        </p>
       ) : (
         <div className="mx-auto grid w-40 grid-cols-3 gap-1">
           <span />
