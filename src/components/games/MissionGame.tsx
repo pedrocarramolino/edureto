@@ -46,14 +46,19 @@ function questionsOf(activity: MissionActivity): MultipleChoiceActivity[] {
 export function MissionGame({
   activity,
   onComplete,
+  onlyQuestions = false,
 }: {
   activity: MissionActivity;
   onComplete: (result: ActivityResult) => void;
+  /** Sin elegir cómo jugar: la prueba de nivel se hace a secas, con preguntas. */
+  onlyQuestions?: boolean;
 }) {
-  const [steps, setSteps] = useState(activity.steps);
+  const [steps, setSteps] = useState(() =>
+    onlyQuestions ? shuffle(activity.steps) : activity.steps,
+  );
   const [stepIndex, setStepIndex] = useState(0);
   const [results, setResults] = useState<ActivityResult[]>([]);
-  const [mode, setMode] = useState<Mode | null>(null);
+  const [mode, setMode] = useState<Mode | null>(onlyQuestions ? "preguntas" : null);
   const [questions, setQuestions] = useState<MultipleChoiceActivity[]>([]);
 
   const currentStep = steps[stepIndex];

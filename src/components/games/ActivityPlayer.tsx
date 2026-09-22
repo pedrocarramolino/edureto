@@ -8,9 +8,12 @@ import { OpenResponseGame } from "@/components/games/OpenResponseGame";
 export function ActivityPlayer({
   activity,
   onComplete,
+  onlyQuestions = false,
 }: {
   activity: Activity;
   onComplete: (result: ActivityResult) => void;
+  /** Se usa en la prueba de nivel: sin elegir modo de juego. */
+  onlyQuestions?: boolean;
 }) {
   switch (activity.type) {
     case "multiple_choice":
@@ -20,7 +23,9 @@ export function ActivityPlayer({
     case "build_answer":
       return <BuildAnswerGame activity={activity} onComplete={onComplete} />;
     case "mission":
-      return <MissionGame activity={activity} onComplete={onComplete} />;
+      return (
+        <MissionGame activity={activity} onComplete={onComplete} onlyQuestions={onlyQuestions} />
+      );
     case "open_response":
       return <OpenResponseGame activity={activity} onComplete={onComplete} />;
   }

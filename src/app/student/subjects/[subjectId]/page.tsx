@@ -110,6 +110,7 @@ export default function SubjectWorldPage({
           ) : (
             <ActivityPlayer
               activity={placementTest}
+              onlyQuestions
               onComplete={async (result) => {
                 setTestResult(result);
                 if (!user) return;
