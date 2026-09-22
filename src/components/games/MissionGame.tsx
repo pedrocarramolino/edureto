@@ -9,8 +9,29 @@ import { ActivityPlayer } from "@/components/games/ActivityPlayer";
 import { PenaltyGame } from "@/components/games/modes/PenaltyGame";
 import { QuizShowGame } from "@/components/games/modes/QuizShowGame";
 import { PacmanGame } from "@/components/games/modes/PacmanGame";
+import { BalloonGame } from "@/components/games/modes/BalloonGame";
+import { RaceGame } from "@/components/games/modes/RaceGame";
 
-type Mode = "preguntas" | "penaltis" | "concurso" | "comecocos";
+type Mode = "preguntas" | "globos" | "penaltis" | "carrera" | "comecocos" | "concurso";
+
+const modeCards: { id: Mode; emoji: string; label: string; hint: string; arcade: boolean }[] = [
+  { id: "preguntas", emoji: "📝", label: "Preguntas", hint: "Una detrás de otra", arcade: false },
+  { id: "globos", emoji: "🎈", label: "Globos", hint: "Explota el correcto", arcade: true },
+  { id: "penaltis", emoji: "⚽", label: "Penaltis", hint: "Chuta a la esquina", arcade: true },
+  { id: "carrera", emoji: "🏃", label: "Carrera", hint: "Corre contra el rival", arcade: true },
+  { id: "comecocos", emoji: "👾", label: "Comecocos", hint: "Cómete la respuesta", arcade: true },
+  { id: "concurso", emoji: "🎬", label: "Concurso", hint: "Con comodines", arcade: true },
+];
+
+/** Younger children get the playful modes first; ESO gets the quiz ones. */
+function orderedModes(stage: string) {
+  const primaria = stage !== "eso";
+  return [...modeCards].sort((a, b) => {
+    const rank = (m: (typeof modeCards)[number]) =>
+      primaria ? (m.id === "preguntas" ? 9 : 0) : m.id === "globos" || m.id === "comecocos" ? 9 : 0;
+    return rank(a) - rank(b);
+  });
+}
 
 /** The arcade modes need every step to be a question with options. */
 function questionsOf(activity: MissionActivity): MultipleChoiceActivity[] {
@@ -61,27 +82,34 @@ export function MissionGame({
           <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
             ¿Cómo quieres jugar?
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button variant="clay" onClick={() => start("preguntas")}>
-              📝 Preguntas
-            </Button>
-            {arcadeAvailable && (
-              <>
-                <Button variant="clay-secondary" onClick={() => start("penaltis")}>
-                  ⚽ Penaltis
-                </Button>
-                <Button variant="clay-secondary" onClick={() => start("concurso")}>
-                  🎬 Concurso
-                </Button>
-                <Button variant="clay-secondary" onClick={() => start("comecocos")}>
-                  👾 Comecocos
-                </Button>
-              </>
-            )}
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {orderedModes(activity.stage)
+              .filter((card) => !card.arcade || arcadeAvailable)
+              .map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => start(card.id)}
+                  className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-3 shadow-clay-sm transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
+                >
+                  <span className="text-3xl" aria-hidden="true">
+                    {card.emoji}
+                  </span>
+                  <p className="font-display font-bold text-slate-800">{card.label}</p>
+                  <p className="text-xs text-slate-500">{card.hint}</p>
+                </button>
+              ))}
           </div>
         </div>
       </div>
     );
+  }
+
+  if (mode === "globos") {
+    return <BalloonGame questions={questions} onComplete={onComplete} />;
+  }
+
+  if (mode === "carrera") {
+    return <RaceGame questions={questions} onComplete={onComplete} />;
   }
 
   if (mode === "penaltis") {

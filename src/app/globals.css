@@ -47,3 +47,25 @@ body {
     animation: none;
   }
 }
+
+/* Balloons drift up across the play area; percentages keep it independent of
+   the container size. */
+@keyframes balloon-rise {
+  from {
+    top: 100%;
+  }
+  to {
+    top: -25%;
+  }
+}
+
+.animate-rise {
+  animation: balloon-rise linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise {
+    animation: none;
+    top: 45%;
+  }
+}
