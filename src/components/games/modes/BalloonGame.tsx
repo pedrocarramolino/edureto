@@ -1,12 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import type { ActivityResult } from "@/types";
+import { useEffect, useState } from "react";
+import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { letters, needsLetters, type GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const colors = ["#ef4444", "#3b82f6", "#22c55e", "#a855f7"];
 const RISE_SECONDS = 14;
+
+/**
+ * Una pregunta de "7 × 8" se lee de un vistazo y una de gramática de 6.º, no.
+ * Los globos suben más despacio cuanto más hay que leer.
+ */
+function riseSeconds(question: MultipleChoiceActivity): number {
+  const letras = question.question.length + Math.max(...question.options.map((o) => o.length));
+  return RISE_SECONDS + Math.min(10, letras / 12);
+}
 
 export function BalloonGame({ questions, onComplete }: GameModeProps) {
   const [index, setIndex] = useState(0);
@@ -41,6 +50,14 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
     setEscaped(false);
     setIndex((prev) => prev + 1);
   }
+
+  // Se pasa de pregunta solo: parar a buscar un botón rompe el ritmo del juego.
+  useEffect(() => {
+    if (!solved && !escaped) return;
+    const salto = setTimeout(() => next(), solved ? 1300 : 2400);
+    return () => clearTimeout(salto);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [solved, escaped]);
 
   if (finished || done) {
     return (
@@ -103,7 +120,7 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
               style={{
                 left: `${15 + optionIndex * 23}%`,
                 backgroundColor: colors[optionIndex % colors.length],
-                animationDuration: `${RISE_SECONDS + optionIndex * 1.5}s`,
+                animationDuration: `${riseSeconds(question) + optionIndex * 1.5}s`,
                 animationDelay: `${optionIndex * 0.6}s`,
               }}
             >
@@ -130,22 +147,18 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
             <p className="font-display text-lg font-bold text-emerald-600">
               ¡Bien! {question.options[question.correctIndex]}
             </p>
-            <div className="mt-2 flex justify-center">
-              <Button variant="clay" onClick={next}>
-                {index + 1 === questions.length ? "Ver el resultado" : "Siguiente globo"}
-              </Button>
-            </div>
+            <p className="text-xs text-slate-400">
+              {index + 1 === questions.length ? "Contando los globos…" : "Va el siguiente globo…"}
+            </p>
           </>
         ) : escaped ? (
           <>
             <p className="font-display text-lg font-bold text-rose-600">
               ¡Se ha escapado! Era {question.options[question.correctIndex]}
             </p>
-            <div className="mt-2 flex justify-center">
-              <Button variant="clay" onClick={next}>
-                {index + 1 === questions.length ? "Ver el resultado" : "Siguiente globo"}
-              </Button>
-            </div>
+            <p className="text-xs text-slate-400">
+              {index + 1 === questions.length ? "Contando los globos…" : "Va el siguiente globo…"}
+            </p>
           </>
         ) : missed ? (
           <p className="text-sm font-semibold text-rose-600">Ese no era. ¡Busca el correcto!</p>
