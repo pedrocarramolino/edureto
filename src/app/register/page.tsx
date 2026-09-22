@@ -35,6 +35,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [guardianConsent, setGuardianConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,6 +50,9 @@ export default function RegisterPage() {
   }
 
   const stageMismatch = age !== null && stage !== "" && !stageFitsAge(stage, age);
+  // La política de privacidad ya dice que a los menores de 14 los registra un
+  // adulto: el RGPD y la LOPDGDD no admiten su consentimiento por sí solos.
+  const needsGuardian = age !== null && age < 14;
   const passwordsMatch = password.length > 0 && password === confirmPassword;
   const canSubmit =
     name.trim().length > 0 &&
@@ -56,7 +60,8 @@ export default function RegisterPage() {
     stage !== "" &&
     avatarEmoji !== "" &&
     passwordsMatch &&
-    acceptedTerms;
+    acceptedTerms &&
+    (!needsGuardian || guardianConsent);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -207,6 +212,23 @@ export default function RegisterPage() {
             <p className="mt-1 text-sm text-rose-600">Las contraseñas no coinciden.</p>
           )}
         </div>
+
+        {needsGuardian && (
+          <label className="flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-900">
+            <input
+              type="checkbox"
+              checked={guardianConsent}
+              onChange={(e) => setGuardianConsent(e.target.checked)}
+              required
+              className="mt-0.5 h-4 w-4 shrink-0 accent-amber-600"
+            />
+            <span>
+              Con {age} años, la cuenta la tiene que crear un adulto. Soy su padre, madre o tutor
+              legal (o la profesora con permiso de la familia) y autorizo el registro y el
+              tratamiento de sus datos.
+            </span>
+          </label>
+        )}
 
         <label className="flex items-start gap-2 text-sm text-slate-600">
           <input
