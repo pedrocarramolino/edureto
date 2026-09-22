@@ -38,7 +38,9 @@ export function EmailVerificationNotice() {
   }
 
   const mensajes: Record<Estado, string> = {
-    aviso: `Te hemos enviado un correo a ${user.email ?? "tu dirección"} para confirmar que es tuya.`,
+    // Las cuentas creadas antes de esta función nunca recibieron el correo, así
+    // que el aviso no puede darlo por enviado.
+    aviso: `La dirección ${user.email ?? "de tu cuenta"} todavía no está confirmada. Pulsa "Reenviar correo" y abre el enlace que te llegue.`,
     enviando: "Enviando el correo…",
     enviado: "Correo enviado. Míralo también en la carpeta de spam.",
     comprobando: "Comprobando…",
