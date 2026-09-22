@@ -21,9 +21,15 @@ export function DashboardSidebar() {
     // On a phone the sidebar becomes a bar across the top; from sm it is the
     // usual column on the left.
     <aside className="flex w-full shrink-0 flex-row items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white p-2 sm:w-64 sm:flex-col sm:items-stretch sm:gap-1 sm:overflow-visible sm:border-b-0 sm:border-r sm:p-4">
+      {/* The wrapping spans own the responsive display: putting "hidden" on the
+          Logo itself fights with the display class the component sets. */}
       <Link href="/" className="shrink-0 px-2 sm:mb-6">
-        <Logo size="sm" withWordmark={false} className="sm:hidden" />
-        <Logo size="sm" className="hidden sm:flex" />
+        <span className="sm:hidden">
+          <Logo size="sm" withWordmark={false} />
+        </span>
+        <span className="hidden sm:block">
+          <Logo size="sm" />
+        </span>
       </Link>
       {links.map(({ href, label, Icon }) => {
         const active = pathname === href;
