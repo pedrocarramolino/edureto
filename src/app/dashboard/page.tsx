@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
 import { listRecentAttempts, type Attempt } from "@/lib/attempts";
+import { withTimeout } from "@/lib/withTimeout";
 import { Card } from "@/components/ui/Card";
 import { Chalkboard } from "@/components/ui/Chalkboard";
 
@@ -15,14 +16,14 @@ export default function DashboardHome() {
   const [attemptsThisWeek, setAttemptsThisWeek] = useState(0);
 
   useEffect(() => {
-    listStudents()
+    withTimeout(listStudents())
       .then(setStudents)
       .catch(() => setError("No se han podido cargar los alumnos. Inténtalo de nuevo más tarde."))
       .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    listRecentAttempts(50)
+    withTimeout(listRecentAttempts(50))
       .then((recentAttempts) => {
         setAttempts(recentAttempts);
         const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;

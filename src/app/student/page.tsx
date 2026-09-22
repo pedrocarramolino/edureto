@@ -13,6 +13,7 @@ import {
   currentStreak,
   type Attempt,
 } from "@/lib/attempts";
+import { withTimeout } from "@/lib/withTimeout";
 import { Card } from "@/components/ui/Card";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 
@@ -37,7 +38,7 @@ export default function StudentHome() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([getStudentProfile(user.uid), listAttemptsForStudent(user.uid)])
+    withTimeout(Promise.all([getStudentProfile(user.uid), listAttemptsForStudent(user.uid)]))
       .then(([studentProfile, studentAttempts]) => {
         setProfile(studentProfile);
         setAttempts(studentAttempts);

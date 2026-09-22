@@ -9,6 +9,7 @@ import {
   type StudentProfile,
 } from "@/lib/students";
 import { stageOptions, stageLabel, stageFitsAge, suggestedStage } from "@/data/stages";
+import { withTimeout } from "@/lib/withTimeout";
 import type { Stage } from "@/types";
 import { Card } from "@/components/ui/Card";
 import { StudentProgress } from "@/components/dashboard/StudentProgress";
@@ -24,7 +25,7 @@ export default function StudentDetailPage({
   const [stageStatus, setStageStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   useEffect(() => {
-    getStudentProfile(id)
+    withTimeout(getStudentProfile(id))
       .then(setStudent)
       .catch(() => setError("No se ha podido cargar este alumno. Inténtalo de nuevo más tarde."));
   }, [id]);

@@ -11,6 +11,7 @@ import {
   currentStreak,
   type Attempt,
 } from "@/lib/attempts";
+import { withTimeout } from "@/lib/withTimeout";
 import { Card } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -24,7 +25,7 @@ export default function ProgressPage() {
 
   useEffect(() => {
     if (!user) return;
-    listAttemptsForStudent(user.uid)
+    withTimeout(listAttemptsForStudent(user.uid))
       .then(setAttempts)
       .catch(() => setError("No hemos podido cargar tu progreso. Inténtalo de nuevo más tarde."));
   }, [user]);

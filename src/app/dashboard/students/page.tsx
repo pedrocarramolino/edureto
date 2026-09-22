@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { listStudents, calculateAge, type StudentProfile } from "@/lib/students";
 import { stageLabel } from "@/data/stages";
+import { withTimeout } from "@/lib/withTimeout";
 import { Card } from "@/components/ui/Card";
 import { Chalkboard } from "@/components/ui/Chalkboard";
 
@@ -13,7 +14,7 @@ export default function StudentsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listStudents()
+    withTimeout(listStudents())
       .then(setStudents)
       .catch(() => setError("No se han podido cargar los alumnos. Inténtalo de nuevo más tarde."))
       .finally(() => setLoading(false));

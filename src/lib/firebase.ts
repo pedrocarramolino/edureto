@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,4 +13,12 @@ const firebaseConfig = {
 
 export const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
-export const db = getFirestore(firebaseApp);
+/**
+ * Con la conexión por defecto, en redes que filtran o intermedian el tráfico
+ * (wifi de colegio, algunos routers, iPad tras un proxy) Firestore se queda
+ * esperando sin dar error. Esta opción detecta ese caso y cambia a long
+ * polling en lugar de colgarse.
+ */
+export const db = initializeFirestore(firebaseApp, {
+  experimentalAutoDetectLongPolling: true,
+});

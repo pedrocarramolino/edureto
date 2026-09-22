@@ -41,9 +41,28 @@ export default function SubjectWorldPage({
 
   useEffect(() => {
     if (!subject || !user || !placementTest) return;
-    hasTakenPlacementTest(user.uid, subject.id).then((taken) => {
-      setPlacementStatus(taken ? "resolved" : "needed");
-    });
+    let cancelado = false;
+
+    // Si la consulta falla o tarda demasiado, se entra al mundo sin prueba de
+    // nivel. Saltarse la prueba es mucho menos grave que dejar al alumno
+    // mirando un "Cargando…" que no se va nunca.
+    const rendicion = setTimeout(() => {
+      if (!cancelado) setPlacementStatus("resolved");
+    }, 8000);
+
+    hasTakenPlacementTest(user.uid, subject.id)
+      .then((taken) => {
+        if (!cancelado) setPlacementStatus(taken ? "resolved" : "needed");
+      })
+      .catch(() => {
+        if (!cancelado) setPlacementStatus("resolved");
+      })
+      .finally(() => clearTimeout(rendicion));
+
+    return () => {
+      cancelado = true;
+      clearTimeout(rendicion);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subject?.id, user?.uid]);
 
@@ -52,7 +71,7 @@ export default function SubjectWorldPage({
   const subjectActivities = activitiesBySubject(subject.id);
 
   if (placementStatus === "checking") {
-    return <p className="text-sm text-slate-500">Cargando…</p>;
+    return <p className="text-sm text-slate-500">Cargando el mundo…</p>;
   }
 
   if (placementStatus === "needed" && placementTest) {

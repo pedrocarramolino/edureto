@@ -6,6 +6,7 @@ import { subjects as allSubjects, subjectsForStage } from "@/data/subjects";
 import { activitiesBySubject } from "@/data/activities";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getStudentProfile } from "@/lib/students";
+import { withTimeout } from "@/lib/withTimeout";
 import type { Stage, Subject } from "@/types";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Chalkboard } from "@/components/ui/Chalkboard";
@@ -45,10 +46,11 @@ export default function SubjectsPage() {
 
   useEffect(() => {
     if (!user) return;
-    getStudentProfile(user.uid)
+    withTimeout(getStudentProfile(user.uid))
       .then((profile) => setStage(profile?.stage ?? null))
       .catch(() => {
-        // Without the profile we simply show every subject.
+        // Without the profile we simply show every subject, rather than
+        // leaving the student staring at a spinner.
       })
       .finally(() => setLoading(false));
   }, [user]);

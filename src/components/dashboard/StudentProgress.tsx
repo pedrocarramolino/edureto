@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSubject } from "@/data/subjects";
 import { listAttemptsForStudent, summarizeBySubject, type Attempt } from "@/lib/attempts";
+import { withTimeout } from "@/lib/withTimeout";
 import { Card } from "@/components/ui/Card";
 import { StatusBadge } from "@/components/ui/Badge";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -17,7 +18,7 @@ export function StudentProgress({ studentId }: { studentId: string }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    listAttemptsForStudent(studentId)
+    withTimeout(listAttemptsForStudent(studentId))
       .then(setAttempts)
       .catch(() => setError("No se ha podido cargar el progreso de este alumno."));
   }, [studentId]);
