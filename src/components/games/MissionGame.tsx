@@ -11,12 +11,14 @@ import { QuizShowGame } from "@/components/games/modes/QuizShowGame";
 import { PacmanGame } from "@/components/games/modes/PacmanGame";
 import { BalloonGame } from "@/components/games/modes/BalloonGame";
 import { RaceGame } from "@/components/games/modes/RaceGame";
+import { PairsGame } from "@/components/games/modes/PairsGame";
 
-type Mode = "preguntas" | "globos" | "penaltis" | "carrera" | "comecocos" | "concurso";
+type Mode = "preguntas" | "globos" | "parejas" | "penaltis" | "carrera" | "comecocos" | "concurso";
 
 const modeCards: { id: Mode; emoji: string; label: string; hint: string; arcade: boolean }[] = [
   { id: "preguntas", emoji: "📝", label: "Preguntas", hint: "Una detrás de otra", arcade: false },
   { id: "globos", emoji: "🎈", label: "Globos", hint: "Explota el correcto", arcade: true },
+  { id: "parejas", emoji: "🃏", label: "Parejas", hint: "Une pregunta y respuesta", arcade: true },
   { id: "penaltis", emoji: "⚽", label: "Penaltis", hint: "Chuta a la esquina", arcade: true },
   { id: "carrera", emoji: "🏃", label: "Carrera", hint: "Corre contra el rival", arcade: true },
   { id: "comecocos", emoji: "👾", label: "Comecocos", hint: "Cómete la respuesta", arcade: true },
@@ -106,6 +108,10 @@ export function MissionGame({
 
   if (mode === "globos") {
     return <BalloonGame questions={questions} onComplete={onComplete} />;
+  }
+
+  if (mode === "parejas") {
+    return <PairsGame questions={questions} onComplete={onComplete} />;
   }
 
   if (mode === "carrera") {
