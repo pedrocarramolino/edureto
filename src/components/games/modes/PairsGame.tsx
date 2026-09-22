@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/Button";
 import type { GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const MAX_PAIRS = 6;
-/** Beyond this, a card holds a sentence rather than a word or a number. */
-const LONG_TEXT = 40;
+/**
+ * Above this a card holds a long sentence. Primaria questions run to about 50
+ * characters and still fit the six-pair board; ESO ones reach 70 or more and
+ * need fewer, wider cards.
+ */
+const LONG_TEXT = 55;
 const BACK_COLORS = ["#4f46e5", "#ea580c", "#16a34a", "#0891b2", "#db2777", "#ca8a04"];
 
 interface Card {
