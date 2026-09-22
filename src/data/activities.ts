@@ -16,6 +16,7 @@ import { valencianoGradeMissions, valencianoGradeQuestions } from "@/data/valenc
 import { fisicaQuimicaGradeMissions, fisicaQuimicaGradeQuestions } from "@/data/fisicaQuimicaGrades";
 import { tecnologiaGradeMissions, tecnologiaGradeQuestions } from "@/data/tecnologiaGrades";
 import { musicaGradeMissions, musicaGradeQuestions } from "@/data/musicaGrades";
+import { artisticaGradeMissions, artisticaGradeQuestions } from "@/data/artisticaGrades";
 
 // A mix of every table from 2 to 10. Options are not in ascending order on
 // purpose: the right answer must not always sit in the same place.
@@ -261,6 +262,7 @@ export const activities: Activity[] = [
   ...fisicaQuimicaGradeMissions,
   ...tecnologiaGradeMissions,
   ...musicaGradeMissions,
+  ...artisticaGradeMissions,
   {
     id: "a5",
     type: "open_response",
@@ -291,6 +293,7 @@ const hiddenActivities: Activity[] = [
   ...fisicaQuimicaGradeQuestions,
   ...tecnologiaGradeQuestions,
   ...musicaGradeQuestions,
+  ...artisticaGradeQuestions,
 ];
 
 export function getActivity(id: string) {
