@@ -18,9 +18,12 @@ export function DashboardSidebar() {
   const { signOutUser } = useAuth();
 
   return (
-    <aside className="flex w-64 flex-col gap-1 border-r border-slate-200 bg-white p-4">
-      <Link href="/" className="mb-6 px-2">
-        <Logo size="sm" />
+    // On a phone the sidebar becomes a bar across the top; from sm it is the
+    // usual column on the left.
+    <aside className="flex w-full shrink-0 flex-row items-center gap-1 overflow-x-auto border-b border-slate-200 bg-white p-2 sm:w-64 sm:flex-col sm:items-stretch sm:gap-1 sm:overflow-visible sm:border-b-0 sm:border-r sm:p-4">
+      <Link href="/" className="shrink-0 px-2 sm:mb-6">
+        <Logo size="sm" withWordmark={false} className="sm:hidden" />
+        <Logo size="sm" className="hidden sm:flex" />
       </Link>
       {links.map(({ href, label, Icon }) => {
         const active = pathname === href;
@@ -28,7 +31,7 @@ export function DashboardSidebar() {
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium transition-colors sm:gap-3 ${
               active ? "bg-primary-soft text-primary" : "text-slate-600 hover:bg-slate-50"
             }`}
           >
@@ -43,10 +46,10 @@ export function DashboardSidebar() {
           await signOutUser();
           router.replace("/login");
         }}
-        className="mt-auto flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50"
+        className="ml-auto flex shrink-0 cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 sm:ml-0 sm:mt-auto sm:gap-3"
       >
         <SignOut size={20} aria-hidden="true" />
-        Cerrar sesión
+        <span className="hidden sm:inline">Cerrar sesión</span>
       </button>
     </aside>
   );
