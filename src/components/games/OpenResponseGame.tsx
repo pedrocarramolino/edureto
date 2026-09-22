@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult, OpenResponseActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 
 export function OpenResponseGame({
   activity,
@@ -13,6 +14,7 @@ export function OpenResponseGame({
 }) {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  useAutoAdvance(submitted, true, () => onComplete({ correct: true, correctCount: 1, totalCount: 1 }));
 
   return (
     <div className="space-y-4">

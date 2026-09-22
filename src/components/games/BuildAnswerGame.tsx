@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult, BuildAnswerActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 
 export function BuildAnswerGame({
   activity,
@@ -29,6 +30,9 @@ export function BuildAnswerGame({
   }
 
   const isCorrect = built.join(" ") === activity.correctOrder.join(" ");
+  useAutoAdvance(checked, isCorrect, () =>
+    onComplete({ correct: isCorrect, correctCount: isCorrect ? 1 : 0, totalCount: 1 }),
+  );
 
   return (
     <div className="space-y-5">

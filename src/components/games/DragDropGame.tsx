@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult, DragDropActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 
 export function DragDropGame({
   activity,
@@ -29,6 +30,9 @@ export function DragDropGame({
 
   const wellPlaced = activity.items.filter((item) => isCorrectPlacement(item.id)).length;
   const allCorrect = wellPlaced === activity.items.length;
+  useAutoAdvance(checked, allCorrect, () =>
+    onComplete({ correct: allCorrect, correctCount: wellPlaced, totalCount: activity.items.length }),
+  );
 
   return (
     <div className="space-y-5">

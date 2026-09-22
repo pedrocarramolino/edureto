@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 import type { GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 /**
@@ -20,6 +21,8 @@ export function RaceGame({ questions, onComplete }: GameModeProps) {
   const finished = index >= questions.length;
   const isRight = answered !== null && answered === question?.correctIndex;
   const percent = (steps: number) => (steps / questions.length) * 100;
+
+  useAutoAdvance(answered !== null, isRight, () => next());
 
   function answer(option: number) {
     setAnswered(option);

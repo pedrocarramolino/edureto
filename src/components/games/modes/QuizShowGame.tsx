@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 import type { GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const letters = ["A", "B", "C", "D"];
@@ -25,6 +26,8 @@ export function QuizShowGame({ questions, onComplete }: GameModeProps) {
   const question = questions[index];
   const finished = index >= questions.length;
   const isRight = answered !== null && answered === question?.correctIndex;
+
+  useAutoAdvance(answered !== null, isRight, () => next());
 
   function useFifty() {
     setUsedFifty(true);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 
 export interface GameModeProps {
   questions: MultipleChoiceActivity[];
@@ -45,6 +46,8 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
       : scored
         ? corners[(shotAt + 2) % corners.length]
         : corners[shotAt];
+
+  useAutoAdvance(phase === "shot", scored, () => next());
 
   function shoot(option: number) {
     setShotAt(option);

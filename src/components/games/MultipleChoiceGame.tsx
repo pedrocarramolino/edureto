@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { useAutoAdvance } from "@/components/games/useAutoAdvance";
 
 export function MultipleChoiceGame({
   activity,
@@ -15,6 +16,8 @@ export function MultipleChoiceGame({
   const [answered, setAnswered] = useState(false);
 
   const isCorrect = selected === activity.correctIndex;
+  const resultado = { correct: isCorrect, correctCount: isCorrect ? 1 : 0, totalCount: 1 };
+  useAutoAdvance(answered, isCorrect, () => onComplete(resultado));
 
   return (
     <div className="space-y-5">
