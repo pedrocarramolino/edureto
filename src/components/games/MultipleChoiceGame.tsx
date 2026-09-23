@@ -19,6 +19,14 @@ export function MultipleChoiceGame({
   const resultado = { correct: isCorrect, correctCount: isCorrect ? 1 : 0, totalCount: 1 };
   useAutoAdvance(answered, isCorrect, () => onComplete(resultado));
 
+  // Tocar la respuesta ya contesta, como en el resto de juegos: en los globos
+  // o en los penaltis nadie pulsa "Comprobar" después de elegir.
+  function responder(index: number) {
+    if (answered) return;
+    setSelected(index);
+    setAnswered(true);
+  }
+
   return (
     <div className="space-y-5">
       <p className="font-display text-lg font-semibold text-slate-800">{activity.question}</p>
@@ -31,7 +39,7 @@ export function MultipleChoiceGame({
             <button
               key={option}
               disabled={answered}
-              onClick={() => setSelected(index)}
+              onClick={() => responder(index)}
               className={`min-h-14 cursor-pointer rounded-clay border-[3px] px-4 py-3 text-left font-medium transition-colors disabled:cursor-not-allowed ${
                 showCorrect
                   ? "border-emerald-500 bg-emerald-50 text-emerald-700"
@@ -52,11 +60,7 @@ export function MultipleChoiceGame({
         <p className="rounded-clay bg-slate-50 p-3 text-sm text-slate-600">{activity.explanation}</p>
       )}
 
-      {!answered ? (
-        <Button variant="clay" disabled={selected === null} onClick={() => setAnswered(true)}>
-          Comprobar
-        </Button>
-      ) : (
+      {answered && (
         <Button
           variant="clay"
           onClick={() =>
