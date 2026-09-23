@@ -35,12 +35,27 @@ function orderedModes(stage: string) {
   });
 }
 
+/**
+ * Los temas de un curso salen del "topic" de cada pregunta. Mientras una
+ * asignatura no tenga las preguntas repartidas por temas, todas comparten el
+ * del curso y aquí sale un único grupo: entonces no se pregunta nada y se
+ * juega el curso entero, como antes.
+ */
+function temasDe(activity: MissionActivity) {
+  const grupos = new Map<string, MissionActivity["steps"]>();
+  for (const step of activity.steps) {
+    const tema = getActivity(step.activityId)?.topic ?? activity.topic;
+    grupos.set(tema, [...(grupos.get(tema) ?? []), step]);
+  }
+  return grupos;
+}
+
 /** The arcade modes need every step to be a question with options. */
-function questionsOf(activity: MissionActivity): MultipleChoiceActivity[] {
-  const activities = activity.steps
+function questionsOf(steps: MissionActivity["steps"]): MultipleChoiceActivity[] {
+  const activities = steps
     .map((step) => getActivity(step.activityId))
     .filter((a): a is MultipleChoiceActivity => a?.type === "multiple_choice");
-  return activities.length === activity.steps.length ? activities : [];
+  return activities.length === steps.length ? activities : [];
 }
 
 export function MissionGame({
@@ -53,6 +68,12 @@ export function MissionGame({
   /** Sin elegir cómo jugar: la prueba de nivel se hace a secas, con preguntas. */
   onlyQuestions?: boolean;
 }) {
+  const temas = temasDe(activity);
+  const porTemas = temas.size > 1 && !onlyQuestions;
+  // Sin temas que elegir se entra directamente al curso entero.
+  const [tema, setTema] = useState<string | null>(porTemas ? null : "todo");
+  const pasosDelTema = tema && tema !== "todo" ? (temas.get(tema) ?? activity.steps) : activity.steps;
+
   const [steps, setSteps] = useState(() =>
     onlyQuestions ? shuffle(activity.steps) : activity.steps,
   );
@@ -73,17 +94,62 @@ export function MissionGame({
   const stepsCorrect = results.filter((r) => r.correct).length;
 
   function start(nextMode: Mode) {
-    setSteps(shuffle(activity.steps));
-    setQuestions(shuffle(questionsOf(activity)));
+    setSteps(shuffle(pasosDelTema));
+    setQuestions(shuffle(questionsOf(pasosDelTema)));
     setMode(nextMode);
   }
 
-  if (mode === null) {
-    const arcadeAvailable = questionsOf(activity).length > 0;
+  if (tema === null) {
     return (
       <div className="space-y-5 text-center">
         <p className="font-display text-lg font-semibold text-slate-800">{activity.narrative}</p>
-        <p className="text-sm text-slate-500">{activity.steps.length} retos por completar</p>
+        <div>
+          <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
+            ¿Qué quieres repasar?
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[...temas.entries()].map(([nombre, pasos]) => (
+              <button
+                key={nombre}
+                onClick={() => setTema(nombre)}
+                className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-4 text-left shadow-clay-sm transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
+              >
+                <p className="font-display font-bold text-slate-800">{nombre}</p>
+                <p className="text-xs text-slate-500">
+                  {pasos.length} {pasos.length === 1 ? "pregunta" : "preguntas"}
+                </p>
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setTema("todo")}
+            className="mt-3 cursor-pointer rounded-clay border-[3px] border-dashed border-slate-300 px-5 py-3 font-display font-bold text-slate-600 transition-colors hover:border-accent hover:text-accent"
+          >
+            Todo el curso · {activity.steps.length} preguntas
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === null) {
+    const arcadeAvailable = questionsOf(pasosDelTema).length > 0;
+    return (
+      <div className="space-y-5 text-center">
+        <p className="font-display text-lg font-semibold text-slate-800">
+          {tema === "todo" ? activity.narrative : tema}
+        </p>
+        <p className="text-sm text-slate-500">
+          {pasosDelTema.length} {pasosDelTema.length === 1 ? "reto" : "retos"} por completar
+          {porTemas && (
+            <button
+              onClick={() => setTema(null)}
+              className="ml-2 cursor-pointer font-semibold text-primary hover:underline"
+            >
+              cambiar de tema
+            </button>
+          )}
+        </p>
 
         <div>
           <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
