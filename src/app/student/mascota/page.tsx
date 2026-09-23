@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { listAttemptsForStudent, totalPoints } from "@/lib/attempts";
 import { withTimeout } from "@/lib/withTimeout";
-import { mascotas, mascotaPorTipo, caras, precios, MAX_NOMBRE } from "@/data/mascota";
+import { mascotas, mascotaPorTipo, precios, MAX_NOMBRE } from "@/data/mascota";
 import { leerMascota, adoptar, guardarMascota } from "@/lib/pets";
 import {
   conElPasoDelTiempo,
@@ -17,14 +17,9 @@ import {
 } from "@/lib/petState";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { ProgressBar } from "@/components/ui/ProgressBar";
+import { Habitat } from "@/components/pets/Habitat";
+import { Necesidad } from "@/components/pets/Necesidad";
 
-const frases: Record<string, string> = {
-  feliz: "¡Está contento! Se nota que lo cuidas.",
-  normal: "Está bien, pero agradecería un rato contigo.",
-  triste: "No está muy allá: tiene hambre o se aburre.",
-  dormida: "Está agotado. Necesita dormir un rato.",
-};
 
 export default function MascotaPage() {
   const { user } = useAuth();
@@ -36,6 +31,8 @@ export default function MascotaPage() {
   const [elegida, setElegida] = useState(mascotas[0].tipo);
   const [nombre, setNombre] = useState("");
   const [renombrando, setRenombrando] = useState(false);
+  const [saltando, setSaltando] = useState(false);
+  const [premio, setPremio] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -117,13 +114,17 @@ export default function MascotaPage() {
   const monedas = Math.max(0, ganadas - estado.gastadas);
   const humor = humorDe(estado);
 
-  function cuidar(accion: (e: EstadoMascota) => EstadoMascota, coste: number) {
+  function cuidar(accion: (e: EstadoMascota) => EstadoMascota, coste: number, festejo: string) {
     if (!estado || !user) return;
     if (coste > monedas) {
-      setAviso("No te llegan las monedas. ¡Juega una partida para ganar más!");
+      setAviso("No te llegan las monedas. Juega una partida y vuelve.");
       return;
     }
     const siguiente = accion(estado);
+    setPremio(festejo);
+    setSaltando(true);
+    setTimeout(() => setSaltando(false), 700);
+    setTimeout(() => setPremio(null), 1200);
     setEstado(siguiente);
     setAviso(null);
     guardarMascota(user.uid, siguiente).catch(() =>
@@ -148,78 +149,59 @@ export default function MascotaPage() {
         </span>
       </div>
 
-      <Card variant="clay" className="text-center">
-        <div
-          className="mx-auto flex h-48 w-full max-w-sm items-center justify-center gap-2 rounded-clay"
-          style={{ backgroundColor: `${animal.color}22` }}
-        >
-          <span className="text-8xl" aria-hidden="true">
-            {animal.emoji}
-          </span>
-          <span className="text-4xl" aria-hidden="true">
-            {caras[humor]}
-          </span>
+      <Habitat animal={animal} humor={humor} saltando={saltando} premio={premio} />
+
+      <Card variant="clay">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          {renombrando ? (
+            <form
+              className="flex gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const valor = new FormData(e.currentTarget).get("nuevo");
+                if (typeof valor === "string" && valor.trim()) renombrar(valor);
+              }}
+            >
+              <input
+                name="nuevo"
+                defaultValue={estado.nombre}
+                maxLength={MAX_NOMBRE}
+                aria-label="Nombre de tu mascota"
+                className="rounded-clay border-[3px] border-slate-200 p-2"
+              />
+              <Button type="submit" variant="clay">
+                Guardar
+              </Button>
+            </form>
+          ) : (
+            <p className="font-display text-xl font-bold text-slate-800">
+              {estado.nombre}{" "}
+              <span className="text-sm font-semibold text-slate-400">· {animal.especie}</span>{" "}
+              <button
+                onClick={() => setRenombrando(true)}
+                className="cursor-pointer text-sm font-semibold text-primary hover:underline"
+              >
+                cambiar nombre
+              </button>
+            </p>
+          )}
         </div>
 
-        {renombrando ? (
-          <form
-            className="mt-3 flex justify-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const valor = new FormData(e.currentTarget).get("nuevo");
-              if (typeof valor === "string" && valor.trim()) renombrar(valor);
-            }}
-          >
-            <input
-              name="nuevo"
-              defaultValue={estado.nombre}
-              maxLength={MAX_NOMBRE}
-              className="rounded-clay border-[3px] border-slate-200 p-2 text-center"
-            />
-            <Button type="submit" variant="clay">
-              Guardar
-            </Button>
-          </form>
-        ) : (
-          <p className="mt-3 font-display text-xl font-bold text-slate-800">
-            {estado.nombre}{" "}
-            <button
-              onClick={() => setRenombrando(true)}
-              className="cursor-pointer text-sm font-semibold text-primary hover:underline"
-            >
-              cambiar nombre
-            </button>
-          </p>
-        )}
-        <p className="text-sm text-slate-500">
-          {animal.especie} · {frases[humor]}
-        </p>
-
-        <div className="mt-5 space-y-3 text-left">
-          {[
-            { etiqueta: "🍽️ Comida", valor: estado.saciedad, color: "#f97316" },
-            { etiqueta: "😀 Ánimo", valor: estado.felicidad, color: "#22c55e" },
-            { etiqueta: "⚡ Energía", valor: estado.energia, color: "#3b82f6" },
-          ].map((b) => (
-            <div key={b.etiqueta}>
-              <div className="flex items-center justify-between text-sm font-semibold text-slate-600">
-                <span>{b.etiqueta}</span>
-                <span>{b.valor}%</span>
-              </div>
-              <ProgressBar value={b.valor} color={b.color} />
-            </div>
-          ))}
+        <div className="mt-4 space-y-3">
+          <Necesidad icono="🍽️" etiqueta="Comida" valor={estado.saciedad} />
+          <Necesidad icono="😀" etiqueta="Ánimo" valor={estado.felicidad} />
+          <Necesidad icono="⚡" etiqueta="Energía" valor={estado.energia} />
         </div>
       </Card>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Button variant="clay" onClick={() => cuidar(darDeComer, precios.comida)}>
+        <Button variant="clay" onClick={() => cuidar(darDeComer, precios.comida, "+25 🍎")}>
           🍎 Darle de comer · {precios.comida}
         </Button>
-        <Button variant="clay-secondary" onClick={() => cuidar(jugarConElla, precios.juego)}>
+        <Button variant="clay-secondary" onClick={() => cuidar(jugarConElla, precios.juego, "+20 🎾")}>
           🎾 Jugar con él · {precios.juego}
         </Button>
-        <Button variant="clay-secondary" onClick={() => cuidar(dormir, precios.dormir)}>
+        <Button variant="clay-secondary" onClick={() => cuidar(dormir, precios.dormir, "+30 ⚡")}>
           😴 Que duerma · gratis
         </Button>
       </div>

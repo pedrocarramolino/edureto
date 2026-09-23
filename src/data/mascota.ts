@@ -1,7 +1,7 @@
 /**
- * Las mascotas que puede adoptar un alumno. El ánimo no se dibuja con otro
- * animal, sino con una carita al lado: así vale para cualquier mascota y se
- * pueden añadir más sin tocar nada más.
+ * Las mascotas que puede adoptar un alumno. El ánimo no se dibuja cambiando de
+ * animal, lo cuenta su habitación, así que añadir una mascota nueva es una
+ * línea más en esta lista.
  */
 export interface Mascota {
   tipo: string;
@@ -24,9 +24,6 @@ export const mascotas: Mascota[] = [
 export function mascotaPorTipo(tipo: string): Mascota {
   return mascotas.find((m) => m.tipo === tipo) ?? mascotas[0];
 }
-
-/** La carita que acompaña a la mascota según cómo se encuentre. */
-export const caras = { feliz: "😄", normal: "🙂", triste: "😢", dormida: "😴" } as const;
 
 /** Lo que cuesta cada cuidado, en monedas ganadas jugando. */
 export const precios = { comida: 20, juego: 10, dormir: 0 } as const;
