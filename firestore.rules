@@ -2,6 +2,22 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function mascotaValida() {
+      return request.resource.data.saciedad is number
+             && request.resource.data.saciedad >= 0 && request.resource.data.saciedad <= 100
+             && request.resource.data.felicidad is number
+             && request.resource.data.felicidad >= 0 && request.resource.data.felicidad <= 100
+             && request.resource.data.energia is number
+             && request.resource.data.energia >= 0 && request.resource.data.energia <= 100
+             && request.resource.data.gastadas is number
+             && request.resource.data.gastadas >= 0
+             && request.resource.data.gastadas <= 1000000
+             && request.resource.data.nombre is string
+             && request.resource.data.nombre.size() <= 30
+             && request.resource.data.tipo is string
+             && request.resource.data.tipo.size() <= 30;
+    }
+
     function isProfesora() {
       return request.auth != null
              && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "profesora";
@@ -99,6 +115,33 @@ service cloud.firestore {
                     && request.resource.data.totalCount <= 30
                     && request.resource.data.completedAt == request.time;
       allow update, delete: if false;
+    }
+
+    // La mascota de cada alumno. Solo su dueño la cuida; la profesora puede
+    // verla. Las necesidades van de 0 a 100 y las monedas gastadas solo pueden
+    // subir, para que nadie se "devuelva" monedas editando el documento.
+    match /mascotas/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isProfesora());
+      allow create: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.ownerId == uid
+                    && request.resource.data.keys().hasOnly([
+                         "ownerId", "tipo", "nombre", "saciedad", "felicidad",
+                         "energia", "gastadas", "ultimaVisita"
+                       ])
+                    && mascotaValida()
+                    && request.resource.data.gastadas == 0
+                    && request.resource.data.ultimaVisita == request.time;
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                         "tipo", "nombre", "saciedad", "felicidad", "energia",
+                         "gastadas", "ultimaVisita"
+                       ])
+                    && mascotaValida()
+                    && request.resource.data.gastadas >= resource.data.gastadas
+                    && request.resource.data.ultimaVisita == request.time;
+      allow delete: if false;
     }
 
     // No other collections are exposed yet.

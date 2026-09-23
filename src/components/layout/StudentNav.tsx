@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { House, BookOpen, GameController, Trophy, SignOut } from "@phosphor-icons/react";
+import { House, BookOpen, GameController, Trophy, PawPrint, SignOut } from "@phosphor-icons/react";
 import { useAuth } from "@/lib/auth/AuthProvider";
 
 const links = [
   { href: "/student", label: "Inicio", Icon: House },
   { href: "/student/subjects", label: "Asignaturas", Icon: BookOpen },
   { href: "/student/games", label: "Juegos", Icon: GameController },
+  { href: "/student/mascota", label: "Mascota", Icon: PawPrint },
   { href: "/student/progress", label: "Progreso", Icon: Trophy },
 ];
 
