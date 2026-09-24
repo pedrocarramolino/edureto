@@ -20,7 +20,7 @@ import { artisticaGradeMissions, artisticaGradeQuestions } from "@/data/artistic
 import { plasticaGradeMissions, plasticaGradeQuestions } from "@/data/plasticaGrades";
 import { latinGradeMissions, latinGradeQuestions } from "@/data/latinGrades";
 import { valoresGradeMissions, valoresGradeQuestions } from "@/data/valoresGrades";
-import { mapasMissions, mapasQuestions } from "@/data/mapasActivities";
+import { geografiaMissions, geografiaQuestions } from "@/data/geografiaActivities";
 
 // A mix of every table from 2 to 10. Options are not in ascending order on
 // purpose: the right answer must not always sit in the same place.
@@ -270,7 +270,7 @@ export const activities: Activity[] = [
   ...plasticaGradeMissions,
   ...latinGradeMissions,
   ...valoresGradeMissions,
-  ...mapasMissions,
+  ...geografiaMissions,
   {
     id: "a5",
     type: "open_response",
@@ -305,7 +305,7 @@ const hiddenActivities: Activity[] = [
   ...plasticaGradeQuestions,
   ...latinGradeQuestions,
   ...valoresGradeQuestions,
-  ...mapasQuestions,
+  ...geografiaQuestions,
 ];
 
 export function getActivity(id: string) {
