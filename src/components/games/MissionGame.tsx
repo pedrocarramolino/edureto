@@ -101,18 +101,18 @@ export function MissionGame({
 
   if (tema === null) {
     return (
-      <div className="space-y-5 text-center">
+      <div className="space-y-5 text-center short:space-y-3">
         <p className="font-display text-lg font-semibold text-slate-800">{activity.narrative}</p>
         <div>
           <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
             ¿Qué quieres repasar?
           </p>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 short:grid-cols-3 short:gap-2">
             {[...temas.entries()].map(([nombre, pasos]) => (
               <button
                 key={nombre}
                 onClick={() => setTema(nombre)}
-                className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-4 text-left shadow-clay-sm transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
+                className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-4 text-left shadow-clay-sm short:p-2.5 transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
               >
                 <p className="font-display font-bold text-slate-800">{nombre}</p>
                 <p className="text-xs text-slate-500">
@@ -135,7 +135,7 @@ export function MissionGame({
   if (mode === null) {
     const arcadeAvailable = questionsOf(pasosDelTema).length > 0;
     return (
-      <div className="space-y-5 text-center">
+      <div className="space-y-5 text-center short:space-y-3">
         <p className="font-display text-lg font-semibold text-slate-800">
           {tema === "todo" ? activity.narrative : tema}
         </p>
@@ -155,16 +155,16 @@ export function MissionGame({
           <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
             ¿Cómo quieres jugar?
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 short:grid-cols-4 short:gap-2">
             {orderedModes(activity.stage)
               .filter((card) => !card.arcade || arcadeAvailable)
               .map((card) => (
                 <button
                   key={card.id}
                   onClick={() => start(card.id)}
-                  className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-3 shadow-clay-sm transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
+                  className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-3 shadow-clay-sm short:p-2 transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
                 >
-                  <span className="text-3xl" aria-hidden="true">
+                  <span className="text-3xl short:text-2xl" aria-hidden="true">
                     {card.emoji}
                   </span>
                   <p className="font-display font-bold text-slate-800">{card.label}</p>

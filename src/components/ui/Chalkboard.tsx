@@ -15,10 +15,10 @@ export function Chalkboard({
   const Heading = level;
   return (
     <div
-      className={`rounded-clay border-8 border-[color:var(--color-chalkboard-frame)] bg-[color:var(--color-chalkboard)] p-6 shadow-clay ${className}`}
+      className={`rounded-clay border-[6px] border-[color:var(--color-chalkboard-frame)] bg-[color:var(--color-chalkboard)] p-4 shadow-clay sm:border-8 sm:p-6 short:p-3 ${className}`}
     >
       <Heading className="font-chalk text-2xl text-white sm:text-3xl">{title}</Heading>
-      {children && <div className="mt-2 font-chalk text-lg text-white/80">{children}</div>}
+      {children && <div className="mt-2 font-chalk text-base text-white/80 sm:text-lg">{children}</div>}
     </div>
   );
 }

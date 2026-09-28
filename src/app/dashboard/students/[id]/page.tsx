@@ -77,11 +77,11 @@ export default function StudentDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <span className="text-4xl" aria-hidden="true">
           {student.avatarEmoji}
         </span>
-        <div>
+        <div className="min-w-0 flex-1 basis-48">
           <h1 className="font-heading text-2xl font-bold text-slate-900">{student.name}</h1>
           <p className="text-slate-500">
             {age !== null ? `${age} años` : "Edad desconocida"} · {stage}
@@ -89,7 +89,7 @@ export default function StudentDetailPage({
         </div>
         <Link
           href="/dashboard/activities"
-          className="ml-auto rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-indigo-700"
+          className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-indigo-700"
         >
           Ver biblioteca de actividades
         </Link>
@@ -97,10 +97,10 @@ export default function StudentDetailPage({
 
       <Card>
         <h2 className="mb-2 font-heading text-lg font-semibold text-slate-800">Datos</h2>
-        <dl className="grid grid-cols-2 gap-3 text-sm">
+        <dl className="grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-slate-500">Correo</dt>
-            <dd className="font-medium text-slate-800">{student.email ?? "—"}</dd>
+            <dd className="break-all font-medium text-slate-800">{student.email ?? "—"}</dd>
           </div>
           <div>
             <dt className="text-slate-500">Fecha de nacimiento</dt>
@@ -116,13 +116,13 @@ export default function StudentDetailPage({
             <dt className="text-slate-500">
               <label htmlFor="stage">Curso</label>
             </dt>
-            <dd className="mt-1 flex items-center gap-2">
+            <dd className="mt-1 flex flex-wrap items-center gap-2">
               <select
                 id="stage"
                 value={student.stage}
                 disabled={stageStatus === "saving"}
                 onChange={(e) => changeStage(e.target.value as Stage)}
-                className="rounded-xl border-2 border-slate-200 p-2 text-sm focus:border-primary focus:outline-none disabled:opacity-60"
+                className="max-w-full rounded-xl border-2 border-slate-200 p-2 text-sm focus:border-primary focus:outline-none disabled:opacity-60"
               >
                 {stageOptions.map((option) => (
                   <option key={option.value} value={option.value}>

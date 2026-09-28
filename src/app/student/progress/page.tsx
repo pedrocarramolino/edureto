@@ -67,19 +67,20 @@ export default function ProgressPage() {
         </Card>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card variant="clay">
-              <p className="text-sm text-slate-500">Juegos terminados</p>
-              <p className="font-display text-3xl font-bold text-slate-900">{attempts.length}</p>
-            </Card>
-            <Card variant="clay">
-              <p className="text-sm text-slate-500">Puntos</p>
-              <p className="font-display text-3xl font-bold text-slate-900">{points}</p>
-            </Card>
-            <Card variant="clay">
-              <p className="text-sm text-slate-500">Días seguidos</p>
-              <p className="font-display text-3xl font-bold text-slate-900">{streak}</p>
-            </Card>
+          {/* Tres cifras cortas: caben en una fila también en el móvil. */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            {[
+              { label: "Juegos terminados", value: attempts.length },
+              { label: "Puntos", value: points },
+              { label: "Días seguidos", value: streak },
+            ].map((stat) => (
+              <Card key={stat.label} variant="clay" className="!p-3 text-center sm:!p-5 sm:text-left">
+                <p className="text-xs text-slate-500 sm:text-sm">{stat.label}</p>
+                <p className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
+                  {stat.value}
+                </p>
+              </Card>
+            ))}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -89,7 +90,7 @@ export default function ProgressPage() {
               return (
                 <Card key={item.subjectId} variant="clay">
                   <div className="mb-3 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
                       <WorldBadge subject={subject} size="sm" />
                       <p className="font-semibold text-slate-800">{subject.name}</p>
                     </div>
@@ -115,7 +116,7 @@ export default function ProgressPage() {
                     key={attempt.id}
                     className="flex items-center justify-between gap-3 rounded-2xl border-2 border-slate-100 p-3"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       {subject && <WorldBadge subject={subject} size="sm" />}
                       <div>
                         <p className="font-semibold text-slate-800">{attempt.activityTitle}</p>

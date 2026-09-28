@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { HuecoTablero } from "@/components/games/MarcoDeJuego";
 import { letters, needsLetters, type GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const MAZE = [
@@ -29,6 +30,8 @@ const LIVES = 3;
 const GHOST_EVERY = 2;
 /** Vueltas de margen al empezar y tras cada vida, para colocarse sin agobios. */
 const GRACE_TICKS = 12;
+/** Lo que hay que arrastrar el dedo para que cuente como deslizar y no como toque. */
+const SWIPE_PX = 18;
 
 const PAC_START = { x: 7, y: 3 };
 const GHOST_STARTS = [
@@ -47,13 +50,21 @@ interface Answer extends Pos {
   correct: boolean;
 }
 
-type Dir = "up" | "down" | "left" | "right" | null;
+type Dir = "up" | "down" | "left" | "right";
 
-const moves: Record<Exclude<Dir, null>, Pos> = {
+const moves: Record<Dir, Pos> = {
   up: { x: 0, y: -1 },
   down: { x: 0, y: 1 },
   left: { x: -1, y: 0 },
   right: { x: 1, y: 0 },
+};
+
+/** Hacia dónde mira la boca del comecocos. */
+const facing: Record<Dir, string> = {
+  right: "none",
+  left: "scaleX(-1)",
+  up: "rotate(-90deg)",
+  down: "rotate(90deg)",
 };
 
 function isWall(x: number, y: number): boolean {
@@ -61,8 +72,30 @@ function isWall(x: number, y: number): boolean {
   return MAZE[y][x] === "#";
 }
 
+function canGo(from: Pos, dir: Dir): boolean {
+  return !isWall(from.x + moves[dir].x, from.y + moves[dir].y);
+}
+
 const openCells: Pos[] = MAZE.flatMap((row, y) =>
   [...row].map((cell, x) => ({ cell, x, y })).filter(({ cell }) => cell === ".").map(({ x, y }) => ({ x, y })),
+);
+
+/** Las paredes no cambian nunca: se dibujan una vez, de una pieza y sin rendijas. */
+const WALLS = (
+  <svg
+    viewBox={`0 0 ${COLS} ${ROWS}`}
+    preserveAspectRatio="none"
+    className="absolute inset-0 h-full w-full"
+    aria-hidden="true"
+  >
+    {MAZE.flatMap((row, y) =>
+      [...row].map((cell, x) =>
+        cell === "#" ? (
+          <rect key={`${x}-${y}`} x={x} y={y} width={1.04} height={1.04} fill="#4f46e5" />
+        ) : null,
+      ),
+    )}
+  </svg>
 );
 
 function distance(a: Pos, b: Pos): number {
@@ -90,7 +123,8 @@ interface State {
   /** Vueltas de reloj desde que empezó esta vida. */
   tick: number;
   pac: Pos;
-  dir: Dir;
+  /** Hacia dónde anda ahora; null mientras está parado. */
+  dir: Dir | null;
   ghosts: Pos[];
   answers: Answer[];
   questionIndex: number;
@@ -103,9 +137,8 @@ interface State {
 }
 
 function moveGhost(ghost: Pos, pac: Pos): Pos {
-  const options = (Object.keys(moves) as Exclude<Dir, null>[])
-    .map((key) => ({ ...moves[key] }))
-    .map((step) => ({ x: ghost.x + step.x, y: ghost.y + step.y }))
+  const options = (Object.keys(moves) as Dir[])
+    .map((key) => ({ x: ghost.x + moves[key].x, y: ghost.y + moves[key].y }))
     .filter((cell) => !isWall(cell.x, cell.y));
   if (options.length === 0) return ghost;
   // Mostly chases, sometimes wanders: a ghost that always takes the shortest
@@ -114,12 +147,25 @@ function moveGhost(ghost: Pos, pac: Pos): Pos {
   return options.reduce((best, cell) => (distance(cell, pac) < distance(best, pac) ? cell : best));
 }
 
+/** Lo que ocupa una casilla, en porcentaje del tablero. */
+function cellBox(pos: Pos) {
+  return {
+    left: `${(pos.x / COLS) * 100}%`,
+    top: `${(pos.y / ROWS) * 100}%`,
+    width: `${100 / COLS}%`,
+    height: `${100 / ROWS}%`,
+  };
+}
+
 export function PacmanGame({ questions, onComplete }: GameModeProps) {
   const [state, setState] = useState<State | null>(null);
-  const dirRef = useRef<Dir>(null);
+  /** La dirección que ha pedido el jugador; se toma en cuanto el pasillo lo deja. */
+  const wantedRef = useRef<Dir | null>(null);
+  const touchRef = useRef<{ x: number; y: number; swiped: boolean } | null>(null);
+  const mazeRef = useRef<HTMLDivElement>(null);
 
   const start = useCallback(() => {
-    dirRef.current = null;
+    wantedRef.current = null;
     setState({
       tick: 0,
       pac: { ...PAC_START },
@@ -135,13 +181,13 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
     });
   }, [questions]);
 
-  const steer = useCallback((dir: Exclude<Dir, null>) => {
-    dirRef.current = dir;
+  const steer = useCallback((dir: Dir) => {
+    wantedRef.current = dir;
   }, []);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      const keys: Record<string, Exclude<Dir, null>> = {
+      const keys: Record<string, Dir> = {
         ArrowUp: "up",
         ArrowDown: "down",
         ArrowLeft: "left",
@@ -165,14 +211,16 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
     const timer = setInterval(() => {
       setState((current) => {
         if (!current || current.status !== "playing") return current;
-        let { pac, ghosts, answers, questionIndex, correctCount, lives, flash } = current;
+        const { answers } = current;
+        let { pac, ghosts, questionIndex, correctCount, lives, flash, dir } = current;
         const tick = current.tick + 1;
-        const dir = dirRef.current;
 
-        if (dir) {
-          const next = { x: pac.x + moves[dir].x, y: pac.y + moves[dir].y };
-          if (!isWall(next.x, next.y)) pac = next;
-        }
+        // Como en el comecocos de verdad: el giro que se pide antes de llegar
+        // al cruce se guarda y se hace al llegar, y mientras tanto se sigue
+        // recto. Antes, pedir un giro contra una pared lo dejaba clavado.
+        const wanted = wantedRef.current;
+        if (wanted && canGo(pac, wanted)) dir = wanted;
+        if (dir && canGo(pac, dir)) pac = { x: pac.x + moves[dir].x, y: pac.y + moves[dir].y };
 
         const eaten = answers.find((a) => a.x === pac.x && a.y === pac.y);
         if (eaten && !eaten.correct) {
@@ -183,6 +231,7 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
             ...current,
             tick,
             pac,
+            dir,
             answers: answers.filter((a) => a !== eaten),
             missed: true,
             flash: { text: `Esa no: ${eaten.value}`, good: false },
@@ -193,14 +242,22 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
           if (!current.missed) correctCount += 1;
           flash = { text: "¡Bien! " + eaten.value, good: true };
           if (isLast) {
-            return { ...current, tick, pac, correctCount, questionIndex: questions.length, status: "over", flash };
+            return { ...current, tick, pac, dir, correctCount, questionIndex: questions.length, status: "over", flash };
           }
           questionIndex += 1;
-          answers = placeAnswers(questions[questionIndex]);
-          pac = { ...PAC_START };
-          ghosts = GHOST_STARTS.map((ghost) => ({ ...ghost }));
-          dirRef.current = null;
-          return { ...current, tick: 0, pac, ghosts, answers, questionIndex, correctCount, missed: false, flash };
+          wantedRef.current = null;
+          return {
+            ...current,
+            tick: 0,
+            pac: { ...PAC_START },
+            dir: null,
+            ghosts: GHOST_STARTS.map((ghost) => ({ ...ghost })),
+            answers: placeAnswers(questions[questionIndex]),
+            questionIndex,
+            correctCount,
+            missed: false,
+            flash,
+          };
         }
 
         // Los fantasmas esperan al principio y luego van a media velocidad. Si
@@ -212,11 +269,12 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
 
         if (ghosts.some((ghost) => ghost.x === pac.x && ghost.y === pac.y)) {
           lives -= 1;
-          dirRef.current = null;
+          wantedRef.current = null;
           return {
             ...current,
             tick: 0,
             pac: { ...PAC_START },
+            dir: null,
             ghosts: GHOST_STARTS.map((ghost) => ({ ...ghost })),
             lives,
             status: lives <= 0 ? "over" : "caught",
@@ -240,6 +298,35 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
     return () => clearTimeout(reanudar);
   }, [atrapado]);
 
+  // En una tablet se juega con el dedo sobre el laberinto: deslizar hacia un
+  // lado lo manda hacia allí, y un toque lo manda hacia donde se ha tocado.
+  function onPointerDown(event: PointerEvent<HTMLDivElement>) {
+    touchRef.current = { x: event.clientX, y: event.clientY, swiped: false };
+  }
+
+  function onPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const touch = touchRef.current;
+    if (!touch) return;
+    const dx = event.clientX - touch.x;
+    const dy = event.clientY - touch.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_PX) return;
+    steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+    // Se vuelve a medir desde aquí, para poder encadenar giros sin levantar el dedo.
+    touchRef.current = { x: event.clientX, y: event.clientY, swiped: true };
+  }
+
+  function onPointerUp(event: PointerEvent<HTMLDivElement>) {
+    const touch = touchRef.current;
+    touchRef.current = null;
+    const maze = mazeRef.current;
+    if (!touch || touch.swiped || !maze || !state) return;
+    const box = maze.getBoundingClientRect();
+    const dx = ((event.clientX - box.left) / box.width) * COLS - (state.pac.x + 0.5);
+    const dy = ((event.clientY - box.top) / box.height) * ROWS - (state.pac.y + 0.5);
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 0.5) return;
+    steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+  }
+
   if (!state) {
     return (
       <div className="space-y-4 text-center">
@@ -248,8 +335,9 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
         </p>
         <p className="font-display text-lg font-bold text-slate-800">Comecocos</p>
         <p className="mx-auto max-w-sm text-sm text-slate-500">
-          Muévete por el laberinto y cómete la respuesta correcta antes de que te pillen los
-          fantasmas. Tienes {LIVES} vidas. Con las flechas del teclado o los botones de abajo.
+          Eres la bola amarilla con boca. Cómete la respuesta correcta antes de que te pillen los
+          fantasmas; tienes {LIVES} vidas. Muévete deslizando el dedo por el laberinto, con los
+          botones o con las flechas del teclado.
         </p>
         <Button variant="clay" onClick={start}>
           Empezar
@@ -289,9 +377,10 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
 
   const question = questions[state.questionIndex];
   const byLetter = needsLetters(question.options);
+  const caught = state.status === "caught";
 
   return (
-    <div className="space-y-3">
+    <div data-tablero className="flex flex-1 flex-col gap-2 sm:gap-3 short:gap-1.5">
       <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
         <span>
           Pregunta {state.questionIndex + 1} de {questions.length}
@@ -299,72 +388,12 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
         <span aria-label={`${state.lives} vidas`}>{"❤️".repeat(state.lives)}</span>
       </div>
 
-      <p className="text-center font-display text-lg font-bold text-slate-800">
+      <p className="text-center font-display text-lg font-bold leading-snug text-slate-800 short:text-base">
         {question.question}
       </p>
 
-      <div className="relative w-full overflow-hidden rounded-clay bg-slate-900 p-1" style={{ aspectRatio: `${COLS} / ${ROWS}` }}>
-        <div
-          className="grid h-full w-full"
-          style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)`, gridTemplateRows: `repeat(${ROWS}, 1fr)` }}
-        >
-          {MAZE.flatMap((row, y) =>
-            [...row].map((cell, x) => (
-              <div
-                key={`${x}-${y}`}
-                className={cell === "#" ? "rounded-[2px] bg-indigo-600" : "bg-transparent"}
-              />
-            )),
-          )}
-        </div>
-
-        {state.answers.map((answer) => (
-          <span
-            key={answer.value}
-            className="absolute flex items-center justify-center rounded-full bg-amber-300 font-display text-[10px] font-bold text-slate-900 sm:text-sm"
-            style={{
-              left: `${(answer.x / COLS) * 100}%`,
-              top: `${(answer.y / ROWS) * 100}%`,
-              width: `${100 / COLS}%`,
-              height: `${100 / ROWS}%`,
-            }}
-          >
-            {byLetter ? letters[question.options.indexOf(answer.value)] : answer.value}
-          </span>
-        ))}
-
-        {state.ghosts.map((ghost, index) => (
-          <span
-            key={index}
-            className="absolute flex items-center justify-center text-[11px] transition-all duration-150 sm:text-lg"
-            style={{
-              left: `${(ghost.x / COLS) * 100}%`,
-              top: `${(ghost.y / ROWS) * 100}%`,
-              width: `${100 / COLS}%`,
-              height: `${100 / ROWS}%`,
-            }}
-            aria-hidden="true"
-          >
-            👻
-          </span>
-        ))}
-
-        <span
-          className="absolute flex items-center justify-center text-[11px] transition-all duration-150 sm:text-lg"
-          style={{
-            left: `${(state.pac.x / COLS) * 100}%`,
-            top: `${(state.pac.y / ROWS) * 100}%`,
-            width: `${100 / COLS}%`,
-            height: `${100 / ROWS}%`,
-          }}
-          aria-hidden="true"
-        >
-          🟡
-        </span>
-      </div>
-
       {byLetter && (
-        <ul className="space-y-1 text-sm text-slate-600">
+        <ul className="grid gap-x-4 gap-y-0.5 text-sm text-slate-600 sm:grid-cols-2">
           {question.options.map((option, optionIndex) => (
             <li key={option} className="flex gap-2">
               <span className="font-display font-bold text-slate-400">{letters[optionIndex]}</span>
@@ -374,39 +403,127 @@ export function PacmanGame({ questions, onComplete }: GameModeProps) {
         </ul>
       )}
 
-      <div aria-live="polite" className="min-h-6 text-center text-sm font-semibold">
-        {state.flash && (
-          <span className={state.flash.good ? "text-emerald-600" : "text-rose-600"}>
-            {state.flash.text}
-          </span>
-        )}
-      </div>
+      {/* En vertical, los botones van debajo del laberinto; en horizontal, al
+          lado, que es donde queda sitio. */}
+      <div className="flex min-h-0 flex-1 flex-col items-center gap-3 landscape:flex-row">
+        <HuecoTablero proporcion={COLS / ROWS} className="min-h-44 landscape:self-stretch">
+          <div
+            ref={mazeRef}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => {
+              touchRef.current = null;
+            }}
+            className="absolute inset-0 touch-none select-none overflow-hidden rounded-xl bg-slate-900"
+          >
+            {WALLS}
 
-      {state.status === "caught" ? (
-        <p className="text-center text-sm font-semibold text-slate-500">
-          Vuelves a empezar en tu esquina…
-        </p>
-      ) : (
-        <div className="mx-auto grid w-40 grid-cols-3 gap-1">
-          <span />
-          <Button variant="clay-secondary" className="!px-0 !py-2" onClick={() => steer("up")} aria-label="Arriba">
-            ▲
-          </Button>
-          <span />
-          <Button variant="clay-secondary" className="!px-0 !py-2" onClick={() => steer("left")} aria-label="Izquierda">
-            ◀
-          </Button>
-          <span />
-          <Button variant="clay-secondary" className="!px-0 !py-2" onClick={() => steer("right")} aria-label="Derecha">
-            ▶
-          </Button>
-          <span />
-          <Button variant="clay-secondary" className="!px-0 !py-2" onClick={() => steer("down")} aria-label="Abajo">
-            ▼
-          </Button>
-          <span />
-        </div>
-      )}
+            {state.answers.map((answer) => (
+              <span
+                key={answer.value}
+                className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center whitespace-nowrap rounded-full bg-amber-300 px-[0.4em] font-display font-bold leading-none text-slate-900 ring-2 ring-slate-900"
+                style={{
+                  left: `${((answer.x + 0.5) / COLS) * 100}%`,
+                  top: `${((answer.y + 0.5) / ROWS) * 100}%`,
+                  minWidth: `${(100 / COLS) * 0.9}%`,
+                  height: `${(100 / ROWS) * 0.8}%`,
+                  fontSize: "max(10px, 2.6cqw)",
+                }}
+              >
+                {byLetter ? letters[question.options.indexOf(answer.value)] : answer.value}
+              </span>
+            ))}
+
+            {state.ghosts.map((ghost, index) => (
+              <span
+                key={index}
+                className="absolute flex items-center justify-center transition-all duration-150"
+                style={{ ...cellBox(ghost), fontSize: "max(12px, 4.8cqw)" }}
+                aria-hidden="true"
+              >
+                👻
+              </span>
+            ))}
+
+            {/* El comecocos: con boca, mirando hacia donde anda, para que no se
+                confunda con las bolas amarillas de las respuestas. */}
+            <span
+              className="absolute flex items-center justify-center transition-all duration-150"
+              style={cellBox(state.pac)}
+              aria-hidden="true"
+            >
+              <span
+                className={`relative block h-[88%] w-[88%] rounded-full bg-yellow-300 shadow-[0_0_8px_rgba(253,224,71,.7)] ${
+                  state.dir ? "animate-comer" : "[clip-path:polygon(0_0,100%_0,100%_22%,50%_50%,100%_78%,100%_100%,0_100%)]"
+                }`}
+                style={{ transform: facing[state.dir ?? "right"] }}
+              >
+                <span className="absolute left-[48%] top-[18%] h-[16%] w-[16%] rounded-full bg-slate-900" />
+              </span>
+            </span>
+
+            <div
+              aria-live="polite"
+              className="pointer-events-none absolute inset-x-0 top-1.5 flex justify-center"
+            >
+              {state.flash && (
+                <span
+                  className={`rounded-full px-3 py-1 font-display text-sm font-bold text-white shadow ${
+                    state.flash.good ? "bg-emerald-600" : "bg-rose-600"
+                  }`}
+                >
+                  {state.flash.text}
+                </span>
+              )}
+            </div>
+
+            {caught && (
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-slate-900/40">
+                <span className="rounded-clay bg-white px-4 py-2 text-center font-display text-sm font-bold text-slate-700">
+                  Vuelves a empezar en tu sitio…
+                </span>
+              </div>
+            )}
+          </div>
+        </HuecoTablero>
+
+        <DirectionPad onSteer={steer} disabled={caught} />
+      </div>
+    </div>
+  );
+}
+
+const pad: { dir: Dir; label: string; symbol: string; area: string }[] = [
+  { dir: "up", label: "Arriba", symbol: "▲", area: "col-start-2 row-start-1" },
+  { dir: "left", label: "Izquierda", symbol: "◀", area: "col-start-1 row-start-2" },
+  { dir: "right", label: "Derecha", symbol: "▶", area: "col-start-3 row-start-2" },
+  { dir: "down", label: "Abajo", symbol: "▼", area: "col-start-2 row-start-3" },
+];
+
+/**
+ * La cruceta. Responde al apoyar el dedo, no al levantarlo: en un juego que
+ * va a trompicones de 190 ms, esperar al clic hace que el giro llegue tarde.
+ */
+function DirectionPad({ onSteer, disabled }: { onSteer: (dir: Dir) => void; disabled: boolean }) {
+  return (
+    <div className="grid shrink-0 grid-cols-3 grid-rows-3 gap-1.5 select-none">
+      {pad.map(({ dir, label, symbol, area }) => (
+        <button
+          key={dir}
+          type="button"
+          aria-label={label}
+          disabled={disabled}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            onSteer(dir);
+          }}
+          onClick={() => onSteer(dir)}
+          className={`${area} flex size-12 cursor-pointer items-center justify-center rounded-2xl border-[3px] border-slate-300 bg-white text-lg text-slate-700 shadow-clay-sm transition-transform active:translate-y-[3px] active:shadow-clay-pressed disabled:opacity-40 sm:size-16 sm:text-xl short:size-12`}
+        >
+          {symbol}
+        </button>
+      ))}
     </div>
   );
 }

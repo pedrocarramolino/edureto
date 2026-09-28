@@ -8,10 +8,10 @@ import { PlayfulBackground } from "@/components/ui/PlayfulBackground";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-10 px-6 py-16 text-center">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center gap-10 px-6 py-16 text-center short:gap-5 short:py-6">
       <PlayfulBackground />
       <div className="space-y-4">
-        <Logo size="xl" withWordmark={false} className="justify-center" />
+        <Logo size="xl" withWordmark={false} className="justify-center short:[&_img]:size-20" />
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">
           Refuerzo escolar con retos y juegos
         </p>

@@ -3,9 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { activities } from "@/data/activities";
-import { subjects, getSubject } from "@/data/subjects";
-import type { SubjectId } from "@/types";
+import { getSubject } from "@/data/subjects";
 import { Card } from "@/components/ui/Card";
+import { FiltroAsignatura, type FiltroValor } from "@/components/ui/FiltroAsignatura";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 
 const typeLabels: Record<string, string> = {
@@ -17,52 +17,25 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function ActivitiesLibraryPage() {
-  const [filter, setFilter] = useState<SubjectId | "all">("all");
+  const [filter, setFilter] = useState<FiltroValor>("all");
   const visibleActivities = activities.filter((a) => filter === "all" || a.subjectId === filter);
-  // Only subjects that already have activities; the rest would filter to nothing.
-  const withActivities = subjects.filter((subject) =>
-    activities.some((a) => a.subjectId === subject.id),
-  );
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-2xl font-bold text-slate-900">Biblioteca de actividades</h1>
           <p className="text-slate-500">Reutiliza o crea actividades para tus alumnos.</p>
         </div>
         <Link
           href="/dashboard/activities/new"
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-indigo-700"
+          className="shrink-0 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-indigo-700"
         >
           + Nueva actividad
         </Link>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setFilter("all")}
-          className={`cursor-pointer rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors ${
-            filter === "all" ? "border-slate-800 bg-slate-800 text-white" : "border-slate-200 text-slate-600"
-          }`}
-        >
-          Todas
-        </button>
-        {withActivities.map((subject) => (
-          <button
-            key={subject.id}
-            onClick={() => setFilter(subject.id)}
-            className="cursor-pointer rounded-full border-2 px-4 py-2 text-sm font-semibold transition-colors"
-            style={
-              filter === subject.id
-                ? { borderColor: subject.color, backgroundColor: subject.color, color: "white" }
-                : { borderColor: "#e2e8f0", color: "#475569" }
-            }
-          >
-            {subject.emoji} {subject.name}
-          </button>
-        ))}
-      </div>
+      <FiltroAsignatura valor={filter} onCambio={setFilter} estilo="profesora" />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {visibleActivities.map((activity) => {

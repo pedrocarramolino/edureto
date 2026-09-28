@@ -76,10 +76,10 @@ export default function SubjectWorldPage({
 
   if (placementStatus === "needed" && placementTest) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6 short:space-y-3">
         <div className="flex items-center gap-4">
           <WorldBadge subject={subject} size="lg" />
-          <div>
+          <div className="min-w-0">
             <h1 className="font-display text-2xl font-bold text-slate-900">{subject.worldName}</h1>
             <p className="text-slate-500">Primera vez aquí — vamos a ver por dónde vas.</p>
           </div>
@@ -92,7 +92,7 @@ export default function SubjectWorldPage({
           </Chalkboard>
         )}
 
-        <div className="rounded-clay border-[3px] border-black/5 bg-white p-6 shadow-clay-sm">
+        <div className="rounded-clay border-[3px] border-black/5 bg-white p-4 shadow-clay-sm sm:p-6 short:p-3">
           {testResult ? (
             <div className="space-y-4 text-center">
               <p className="text-5xl" aria-hidden="true">
@@ -138,7 +138,7 @@ export default function SubjectWorldPage({
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <WorldBadge subject={subject} size="lg" />
-        <div>
+        <div className="min-w-0">
           <h1 className="font-display text-2xl font-bold text-slate-900">{subject.worldName}</h1>
           <p className="text-slate-500">{subject.description}</p>
         </div>

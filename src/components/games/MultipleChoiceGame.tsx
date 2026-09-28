@@ -28,7 +28,7 @@ export function MultipleChoiceGame({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 short:space-y-3">
       <p className="font-display text-lg font-semibold text-slate-800">{activity.question}</p>
       <div className="grid gap-3 sm:grid-cols-2">
         {activity.options.map((option, index) => {
@@ -40,7 +40,7 @@ export function MultipleChoiceGame({
               key={option}
               disabled={answered}
               onClick={() => responder(index)}
-              className={`min-h-14 cursor-pointer rounded-clay border-[3px] px-4 py-3 text-left font-medium transition-colors disabled:cursor-not-allowed ${
+              className={`min-h-14 cursor-pointer rounded-clay border-[3px] px-4 py-3 text-left font-medium short:min-h-11 short:py-2 transition-colors disabled:cursor-not-allowed ${
                 showCorrect
                   ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                   : showWrong

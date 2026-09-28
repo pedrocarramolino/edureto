@@ -61,7 +61,7 @@ export function StudentProgress({ studentId }: { studentId: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <Card>
           <p className="text-sm text-slate-500">Juegos terminados</p>
           <p className="text-3xl font-bold text-slate-900">{attempts.length}</p>
@@ -73,7 +73,7 @@ export function StudentProgress({ studentId }: { studentId: string }) {
             <span className="text-base font-medium text-slate-400"> / {totalCount}</span>
           </p>
         </Card>
-        <Card>
+        <Card className="col-span-2 sm:col-span-1">
           <p className="text-sm text-slate-500">Última partida</p>
           <p className="text-lg font-semibold text-slate-900">
             {formatDate(attempts[0].completedAt)}
@@ -123,7 +123,7 @@ export function StudentProgress({ studentId }: { studentId: string }) {
               return (
                 <div
                   key={attempt.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 p-3 text-sm"
+                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-slate-100 p-3 text-sm"
                 >
                   <span className="font-medium text-slate-800">
                     {subject ? `${subject.emoji} ${subject.name}` : attempt.activityTitle}

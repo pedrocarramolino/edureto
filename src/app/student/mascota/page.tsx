@@ -58,22 +58,24 @@ export default function MascotaPage() {
           <p className="text-slate-500">Vivirá contigo y la cuidarás con lo que ganes jugando.</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-3">
           {mascotas.map((m) => (
             <button
               key={m.tipo}
               onClick={() => setElegida(m.tipo)}
               aria-pressed={elegida === m.tipo}
-              className={`cursor-pointer rounded-clay border-[3px] p-4 text-center transition-all ${
+              className={`cursor-pointer rounded-clay border-[3px] p-2 text-center transition-all sm:p-4 ${
                 elegida === m.tipo
                   ? "border-accent bg-accent-soft shadow-clay"
                   : "border-slate-200 bg-white shadow-clay-sm hover:border-accent/40"
               }`}
             >
-              <span className="text-5xl" aria-hidden="true">
+              <span className="text-4xl sm:text-5xl" aria-hidden="true">
                 {m.emoji}
               </span>
-              <p className="mt-1 font-display font-bold text-slate-800">{m.especie}</p>
+              <p className="mt-1 truncate font-display text-xs font-bold text-slate-800 sm:text-base">
+                {m.especie}
+              </p>
             </button>
           ))}
         </div>
@@ -132,6 +134,12 @@ export default function MascotaPage() {
     );
   }
 
+  const cuidados = [
+    { texto: "Darle de comer", emoji: "🍎", accion: darDeComer, coste: precios.comida, festejo: "+25 🍎" },
+    { texto: "Jugar con él", emoji: "🎾", accion: jugarConElla, coste: precios.juego, festejo: "+20 🎾" },
+    { texto: "Que duerma", emoji: "😴", accion: dormir, coste: precios.dormir, festejo: "+30 ⚡" },
+  ];
+
   function renombrar(nuevo: string) {
     if (!estado || !user) return;
     const siguiente = { ...estado, nombre: nuevo.trim().slice(0, MAX_NOMBRE) };
@@ -141,7 +149,7 @@ export default function MascotaPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 short:space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-slate-900">Mi mascota</h1>
         <span className="rounded-full bg-amber-100 px-4 py-2 font-display font-bold text-amber-800">
@@ -149,68 +157,81 @@ export default function MascotaPage() {
         </span>
       </div>
 
-      <Habitat animal={animal} humor={humor} saltando={saltando} premio={premio} />
+      {/* Tumbada (tablet, ordenador o móvil de lado), la habitación a la
+          izquierda y los cuidados a la derecha: todo a la vista sin bajar. */}
+      <div className="grid gap-4 sm:landscape:grid-cols-2 sm:landscape:items-start">
+        <Habitat animal={animal} humor={humor} saltando={saltando} premio={premio} />
 
-      <Card variant="clay">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          {renombrando ? (
-            <form
-              className="flex gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const valor = new FormData(e.currentTarget).get("nuevo");
-                if (typeof valor === "string" && valor.trim()) renombrar(valor);
-              }}
-            >
-              <input
-                name="nuevo"
-                defaultValue={estado.nombre}
-                maxLength={MAX_NOMBRE}
-                aria-label="Nombre de tu mascota"
-                className="rounded-clay border-[3px] border-slate-200 p-2"
-              />
-              <Button type="submit" variant="clay">
-                Guardar
-              </Button>
-            </form>
-          ) : (
-            <p className="font-display text-xl font-bold text-slate-800">
-              {estado.nombre}{" "}
-              <span className="text-sm font-semibold text-slate-400">· {animal.especie}</span>{" "}
-              <button
-                onClick={() => setRenombrando(true)}
-                className="cursor-pointer text-sm font-semibold text-primary hover:underline"
+        <div className="space-y-4 short:space-y-3">
+          <Card variant="clay" className="short:!p-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              {renombrando ? (
+                <form
+                  className="flex w-full gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const valor = new FormData(e.currentTarget).get("nuevo");
+                    if (typeof valor === "string" && valor.trim()) renombrar(valor);
+                  }}
+                >
+                  <input
+                    name="nuevo"
+                    defaultValue={estado.nombre}
+                    maxLength={MAX_NOMBRE}
+                    aria-label="Nombre de tu mascota"
+                    className="min-w-0 flex-1 rounded-clay border-[3px] border-slate-200 p-2"
+                  />
+                  <Button type="submit" variant="clay">
+                    Guardar
+                  </Button>
+                </form>
+              ) : (
+                <p className="font-display text-xl font-bold text-slate-800">
+                  {estado.nombre}{" "}
+                  <span className="text-sm font-semibold text-slate-400">· {animal.especie}</span>{" "}
+                  <button
+                    onClick={() => setRenombrando(true)}
+                    className="cursor-pointer text-sm font-semibold text-primary hover:underline"
+                  >
+                    cambiar nombre
+                  </button>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-3 short:mt-2 short:space-y-2">
+              <Necesidad icono="🍽️" etiqueta="Comida" valor={estado.saciedad} />
+              <Necesidad icono="😀" etiqueta="Ánimo" valor={estado.felicidad} />
+              <Necesidad icono="⚡" etiqueta="Energía" valor={estado.energia} />
+            </div>
+          </Card>
+
+          {/* Tres fichas en fila en cualquier pantalla: el dibujo arriba y el
+              precio abajo caben igual en un móvil que en el ordenador. */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {cuidados.map((c) => (
+              <Button
+                key={c.texto}
+                variant={c.accion === darDeComer ? "clay" : "clay-secondary"}
+                onClick={() => cuidar(c.accion, c.coste, c.festejo)}
+                className="flex flex-col items-center !px-2 !py-2 leading-tight"
               >
-                cambiar nombre
-              </button>
+                <span className="text-2xl" aria-hidden="true">
+                  {c.emoji}
+                </span>
+                <span className="text-sm">{c.texto}</span>
+                <span className="text-xs opacity-80">{c.coste ? `🪙 ${c.coste}` : "gratis"}</span>
+              </Button>
+            ))}
+          </div>
+
+          {aviso && (
+            <p role="status" className="rounded-clay bg-amber-50 p-3 text-center text-sm text-amber-800">
+              {aviso}
             </p>
           )}
         </div>
-
-        <div className="mt-4 space-y-3">
-          <Necesidad icono="🍽️" etiqueta="Comida" valor={estado.saciedad} />
-          <Necesidad icono="😀" etiqueta="Ánimo" valor={estado.felicidad} />
-          <Necesidad icono="⚡" etiqueta="Energía" valor={estado.energia} />
-        </div>
-      </Card>
-
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Button variant="clay" onClick={() => cuidar(darDeComer, precios.comida, "+25 🍎")}>
-          🍎 Darle de comer · {precios.comida}
-        </Button>
-        <Button variant="clay-secondary" onClick={() => cuidar(jugarConElla, precios.juego, "+20 🎾")}>
-          🎾 Jugar con él · {precios.juego}
-        </Button>
-        <Button variant="clay-secondary" onClick={() => cuidar(dormir, precios.dormir, "+30 ⚡")}>
-          😴 Que duerma · gratis
-        </Button>
       </div>
-
-      {aviso && (
-        <p role="status" className="rounded-clay bg-amber-50 p-3 text-center text-sm text-amber-800">
-          {aviso}
-        </p>
-      )}
 
       <Card variant="clay">
         <p className="text-sm text-slate-600">

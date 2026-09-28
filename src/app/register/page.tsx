@@ -79,11 +79,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16">
+    <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-16 short:gap-3 short:py-4">
       <PlayfulBackground />
       <div className="flex flex-col items-center text-center">
         <Link href="/">
-          <Logo size="lg" withWordmark={false} />
+          <Logo size="lg" withWordmark={false} className="short:[&_img]:size-14" />
         </Link>
         <p className="mt-1 text-slate-500">Crea tu cuenta</p>
       </div>

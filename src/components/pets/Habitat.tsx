@@ -31,7 +31,7 @@ export function Habitat({
 
   return (
     <div
-      className="relative mx-auto h-64 w-full max-w-lg overflow-hidden rounded-clay border-[3px] border-black/10 shadow-clay sm:h-72"
+      className="relative mx-auto h-64 w-full max-w-lg overflow-hidden rounded-clay border-[3px] border-black/10 shadow-clay sm:h-72 short:h-56"
       style={{ background: cielo.fondo }}
     >
       {/* sol o luna */}

@@ -32,9 +32,9 @@ export default async function ActivityReviewPage({
         ← Volver a la biblioteca
       </Link>
 
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <WorldBadge subject={subject} size="lg" />
-        <div>
+        <div className="min-w-0 flex-1 basis-48">
           <h1 className="font-heading text-2xl font-bold text-slate-900">{activity.title}</h1>
           <p className="text-slate-500">
             {subject.name} · {activity.topic} · {typeLabels[activity.type]}
@@ -42,7 +42,7 @@ export default async function ActivityReviewPage({
         </div>
         <Link
           href={`/dashboard/activities/${activity.id}/probar`}
-          className="ml-auto rounded-xl border-2 border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="shrink-0 rounded-xl border-2 border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           Probar el juego
         </Link>

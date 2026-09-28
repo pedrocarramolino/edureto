@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
 import { useAutoAdvance } from "@/components/games/useAutoAdvance";
+import { HuecoTablero } from "@/components/games/MarcoDeJuego";
 
 export interface GameModeProps {
   questions: MultipleChoiceActivity[];
@@ -87,7 +88,7 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div data-tablero className="flex flex-1 flex-col gap-2 sm:gap-3 short:gap-1.5">
       <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
         <span>
           Penalti {index + 1} de {questions.length}
@@ -95,68 +96,12 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
         <span className="text-accent">⚽ {goals}</span>
       </div>
 
-      <p className="text-center font-display text-xl font-bold text-slate-800">
+      <p className="text-center font-display text-xl font-bold leading-snug text-slate-800 short:text-base">
         {question.question}
       </p>
 
-      {/* The goal. Each option is one of the four corners to shoot at. */}
-      <div className="relative aspect-[4/3] max-h-96 min-h-64 w-full overflow-hidden rounded-clay bg-gradient-to-b from-sky-300 to-sky-100">
-        {/* Grass, then the goal with its net on top of it. */}
-        <div className="absolute inset-x-0 bottom-0 h-[32%] bg-emerald-500" />
-        <div className="absolute inset-x-0 bottom-[30%] h-1 bg-white/70" />
-        <div className="absolute inset-x-[10%] top-[16%] bottom-[30%] rounded-t-md border-[8px] border-b-0 border-white bg-white/15 shadow-[inset_0_0_30px_rgba(0,0,0,.08)] [background-image:linear-gradient(to_right,rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:12px_12px]" />
-
-        <div
-          className="absolute text-4xl transition-all duration-500 sm:text-5xl"
-          style={{
-            left: `${keeperCorner ? keeperCorner.x : 50}%`,
-            top: `${keeperCorner ? keeperCorner.y : 48}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-          aria-hidden="true"
-        >
-          🧤
-        </div>
-
-        <div
-          className="absolute text-3xl transition-all duration-500 ease-out sm:text-4xl"
-          style={{
-            left: `${shotAt !== null ? corners[shotAt].x : 50}%`,
-            top: `${shotAt !== null ? corners[shotAt].y : 86}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-          aria-hidden="true"
-        >
-          ⚽
-        </div>
-
-        {question.options.map((option, optionIndex) => {
-          const corner = corners[optionIndex] ?? corners[0];
-          const isShot = shotAt === optionIndex;
-          const isRight = optionIndex === question.correctIndex;
-          return (
-            <button
-              key={option}
-              disabled={phase === "shot"}
-              onClick={() => shoot(optionIndex)}
-              aria-label={`Chutar ${corner.label}: ${option}`}
-              className={`absolute min-h-11 min-w-16 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-clay border-[3px] px-3 py-2 font-display text-lg font-bold shadow-clay-sm transition-colors disabled:cursor-not-allowed ${
-                phase === "shot" && isRight
-                  ? "border-emerald-600 bg-emerald-500 text-white"
-                  : phase === "shot" && isShot
-                    ? "border-rose-600 bg-rose-500 text-white"
-                    : "border-white bg-white/90 text-slate-800 hover:bg-white"
-              }`}
-              style={{ left: `${corner.x}%`, top: `${corner.y}%` }}
-            >
-              {byLetter ? letters[optionIndex] : option}
-            </button>
-          );
-        })}
-      </div>
-
       {byLetter && (
-        <ul className="space-y-1 text-sm text-slate-600">
+        <ul className="grid gap-x-4 gap-y-0.5 text-sm text-slate-600 sm:grid-cols-2">
           {question.options.map((option, optionIndex) => (
             <li key={option} className="flex gap-2">
               <span className="font-display font-bold text-slate-400">{letters[optionIndex]}</span>
@@ -166,7 +111,68 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
         </ul>
       )}
 
-      <div aria-live="polite" className="min-h-14 text-center">
+      {/* The goal. Each option is one of the four corners to shoot at. It grows
+          to fill the free space, keeping its shape, in portrait or landscape. */}
+      <HuecoTablero proporcion={4 / 3} className="min-h-48 short:min-h-40">
+        <div className="absolute inset-0 overflow-hidden rounded-clay bg-gradient-to-b from-sky-300 to-sky-100">
+          {/* Grass, then the goal with its net on top of it. */}
+          <div className="absolute inset-x-0 bottom-0 h-[32%] bg-emerald-500" />
+          <div className="absolute inset-x-0 bottom-[30%] h-1 bg-white/70" />
+          <div className="absolute inset-x-[10%] top-[16%] bottom-[30%] rounded-t-md border-[8px] border-b-0 border-white bg-white/15 shadow-[inset_0_0_30px_rgba(0,0,0,.08)] [background-image:linear-gradient(to_right,rgba(255,255,255,.55)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,.55)_1px,transparent_1px)] [background-size:12px_12px]" />
+
+          <div
+            className="absolute text-4xl transition-all duration-500 sm:text-5xl short:text-3xl"
+            style={{
+              left: `${keeperCorner ? keeperCorner.x : 50}%`,
+              top: `${keeperCorner ? keeperCorner.y : 48}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+            aria-hidden="true"
+          >
+            🧤
+          </div>
+
+          <div
+            className="absolute text-3xl transition-all duration-500 ease-out sm:text-4xl short:text-2xl"
+            style={{
+              left: `${shotAt !== null ? corners[shotAt].x : 50}%`,
+              top: `${shotAt !== null ? corners[shotAt].y : 86}%`,
+              transform: "translate(-50%, -50%)",
+            }}
+            aria-hidden="true"
+          >
+            ⚽
+          </div>
+
+          {question.options.map((option, optionIndex) => {
+            const corner = corners[optionIndex] ?? corners[0];
+            const isShot = shotAt === optionIndex;
+            const isRight = optionIndex === question.correctIndex;
+            return (
+              <button
+                key={option}
+                disabled={phase === "shot"}
+                onClick={() => shoot(optionIndex)}
+                aria-label={`Chutar ${corner.label}: ${option}`}
+                className={`absolute min-h-11 min-w-16 -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-clay border-[3px] px-3 py-2 font-display text-lg font-bold shadow-clay-sm transition-colors disabled:cursor-not-allowed short:min-h-10 short:py-1 short:text-base ${
+                  phase === "shot" && isRight
+                    ? "border-emerald-600 bg-emerald-500 text-white"
+                    : phase === "shot" && isShot
+                      ? "border-rose-600 bg-rose-500 text-white"
+                      : "border-white bg-white/90 text-slate-800 hover:bg-white"
+                }`}
+                style={{ left: `${corner.x}%`, top: `${corner.y}%` }}
+              >
+                {byLetter ? letters[optionIndex] : option}
+              </button>
+            );
+          })}
+        </div>
+      </HuecoTablero>
+
+      {/* Mensaje y botón en la misma franja, para que el campo no dé un salto
+          al chutar. */}
+      <div aria-live="polite" className="flex min-h-12 flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center short:min-h-10">
         {phase === "aiming" ? (
           <p className="text-sm text-slate-500">
             {byLetter
@@ -180,20 +186,15 @@ export function PenaltyGame({ questions, onComplete }: GameModeProps) {
             >
               {scored ? "¡GOOOL!" : "¡Parada del portero!"}
             </p>
-            {!scored && (
-              <p className="text-sm text-slate-500">{question.explanation ?? ""}</p>
+            <Button variant="clay" className="!px-4 !py-2 !text-sm" onClick={next}>
+              {index + 1 === questions.length ? "Ver el resultado" : "Siguiente penalti"}
+            </Button>
+            {!scored && question.explanation && (
+              <p className="w-full text-sm text-slate-500">{question.explanation}</p>
             )}
           </>
         )}
       </div>
-
-      {phase === "shot" && (
-        <div className="flex justify-center">
-          <Button variant="clay" onClick={next}>
-            {index + 1 === questions.length ? "Ver el resultado" : "Siguiente penalti"}
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

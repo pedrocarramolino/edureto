@@ -48,7 +48,7 @@ export default function DashboardHome() {
         Vista rápida de tus alumnos.
       </Chalkboard>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:max-w-2xl">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:max-w-2xl">
         <Card>
           <p className="text-sm text-slate-500">Alumnos registrados</p>
           <p className="text-3xl font-bold text-slate-900">

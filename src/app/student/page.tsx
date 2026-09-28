@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Flame, Star, ArrowRight } from "@phosphor-icons/react";
+import { useRouter } from "next/navigation";
+import { Flame, Star, ArrowRight, SignOut } from "@phosphor-icons/react";
 import { getActivity } from "@/data/activities";
 import { getSubject } from "@/data/subjects";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -31,7 +32,8 @@ function recentActivities(attempts: Attempt[], max: number) {
 }
 
 export default function StudentHome() {
-  const { user } = useAuth();
+  const { user, signOutUser } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,16 +54,16 @@ export default function StudentHome() {
   const keepPlaying = recentActivities(attempts, 3);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 short:space-y-4">
       <div className="flex items-center gap-4">
         <span className="text-5xl" aria-hidden="true">
           {profile?.avatarEmoji ?? "👋"}
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="font-display text-2xl font-bold text-slate-900">
             ¡Hola{profile ? `, ${profile.name.split(" ")[0]}` : ""}!
           </h1>
-          <p className="flex items-center gap-3 text-slate-500">
+          <p className="flex flex-wrap items-center gap-x-3 text-slate-500">
             <span className="flex items-center gap-1">
               <Flame size={18} weight="fill" className="text-accent" />
               {loading ? "…" : currentStreak(attempts)} días de racha
@@ -72,6 +74,17 @@ export default function StudentHome() {
             </span>
           </p>
         </div>
+        {/* En el móvil el menú de abajo no tiene sitio para "Salir": vive aquí. */}
+        <button
+          onClick={async () => {
+            await signOutUser();
+            router.replace("/login");
+          }}
+          className="flex shrink-0 cursor-pointer flex-col items-center gap-0.5 rounded-clay px-2 py-1 font-display text-[11px] font-semibold text-slate-400 hover:bg-white/60 sm:hidden"
+        >
+          <SignOut size={22} aria-hidden="true" />
+          Salir
+        </button>
       </div>
 
       <Card variant="clay">
@@ -92,9 +105,9 @@ export default function StudentHome() {
                 <Link
                   key={attempt.id}
                   href={`/student/play/${activity.id}`}
-                  className="flex items-center justify-between rounded-2xl border-2 border-slate-100 p-3 transition-colors hover:border-primary-soft hover:bg-primary-soft/40"
+                  className="flex items-center justify-between gap-3 rounded-2xl border-2 border-slate-100 p-3 transition-colors hover:border-primary-soft hover:bg-primary-soft/40"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <WorldBadge subject={subject} size="sm" />
                     <div>
                       <p className="font-semibold text-slate-800">{activity.title}</p>
@@ -103,7 +116,7 @@ export default function StudentHome() {
                       </p>
                     </div>
                   </div>
-                  <span className="flex items-center gap-1 text-sm font-semibold text-accent">
+                  <span className="flex shrink-0 items-center gap-1 text-sm font-semibold text-accent">
                     Repetir <ArrowRight size={16} weight="bold" />
                   </span>
                 </Link>

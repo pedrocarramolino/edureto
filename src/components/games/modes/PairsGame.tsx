@@ -107,7 +107,7 @@ export function PairsGame({ questions, onComplete }: GameModeProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 short:space-y-2">
       <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
         <span>
           Parejas {matched.length / 2} de {pairs}
@@ -121,7 +121,7 @@ export function PairsGame({ questions, onComplete }: GameModeProps) {
 
       <div
         className={`grid gap-2 sm:gap-3 ${
-          compact ? "grid-cols-3 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-4"
+          compact ? "grid-cols-3 sm:grid-cols-4 short:grid-cols-6" : "grid-cols-2 sm:grid-cols-4"
         }`}
       >
         {cards.map((card, index) => {
@@ -134,7 +134,7 @@ export function PairsGame({ questions, onComplete }: GameModeProps) {
               disabled={isMatched}
               aria-label={isUp ? `${card.kind}: ${card.text}` : "Carta boca abajo"}
               className={`flex cursor-pointer items-center justify-center overflow-hidden rounded-clay border-[3px] p-2 text-center font-semibold leading-tight break-words transition-all duration-200 disabled:cursor-default ${
-                compact ? "min-h-24 text-xs sm:min-h-28 sm:text-sm" : "min-h-32 text-[11px] sm:min-h-36 sm:text-xs"
+                compact ? "min-h-24 text-xs sm:min-h-28 sm:text-sm short:min-h-20" : "min-h-32 text-[11px] sm:min-h-36 sm:text-xs short:min-h-28"
               } ${
                 isMatched
                   ? "border-emerald-500 bg-emerald-50 text-emerald-800"

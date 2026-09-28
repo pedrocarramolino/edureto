@@ -65,7 +65,7 @@ export function RaceGame({ questions, onComplete }: GameModeProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 short:space-y-2">
       <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
         <span>
           Tramo {index + 1} de {questions.length}
@@ -75,7 +75,7 @@ export function RaceGame({ questions, onComplete }: GameModeProps) {
         </span>
       </div>
 
-      <div className="space-y-2 rounded-clay bg-emerald-50 p-4">
+      <div className="space-y-2 rounded-clay bg-emerald-50 p-4 short:space-y-1 short:p-2">
         {[
           { icon: "🏃", steps: me, label: "Tú" },
           { icon: "🤖", steps: rival, label: "Rival" },
@@ -113,7 +113,7 @@ export function RaceGame({ questions, onComplete }: GameModeProps) {
               key={option}
               disabled={answered !== null}
               onClick={() => answer(optionIndex)}
-              className={`min-h-14 cursor-pointer rounded-clay border-[3px] px-4 py-3 text-left font-medium transition-colors disabled:cursor-not-allowed ${
+              className={`min-h-14 cursor-pointer rounded-clay border-[3px] px-4 py-3 text-left font-medium short:min-h-11 short:py-2 transition-colors disabled:cursor-not-allowed ${
                 showRight
                   ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                   : chosen

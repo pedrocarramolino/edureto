@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { ActivityResult, MultipleChoiceActivity } from "@/types";
 import { Button } from "@/components/ui/Button";
+import { HuecoTablero } from "@/components/games/MarcoDeJuego";
 import { letters, needsLetters, type GameModeProps } from "@/components/games/modes/PenaltyGame";
 
 const colors = ["#ef4444", "#3b82f6", "#22c55e", "#a855f7"];
@@ -85,7 +86,7 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div data-tablero className="flex flex-1 flex-col gap-2 sm:gap-3 short:gap-1.5">
       <div className="flex items-center justify-between font-display text-sm font-bold text-slate-500">
         <span>
           Globo {index + 1} de {questions.length}
@@ -93,45 +94,12 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
         <span className="text-accent">🎈 {correctCount}</span>
       </div>
 
-      <p className="text-center font-display text-lg font-bold text-slate-800">
+      <p className="text-center font-display text-lg font-bold leading-snug text-slate-800 short:text-base">
         {question.question}
       </p>
 
-      <div className="relative h-80 w-full overflow-hidden rounded-clay bg-gradient-to-b from-sky-300 to-sky-100 sm:h-96">
-        <span className="absolute left-6 top-6 text-3xl opacity-80" aria-hidden="true">
-          ☁️
-        </span>
-        <span className="absolute right-8 top-16 text-2xl opacity-70" aria-hidden="true">
-          ☁️
-        </span>
-
-        {question.options.map((option, optionIndex) => {
-          const isPopped = popped.includes(optionIndex);
-          if (isPopped) return null;
-          return (
-            <button
-              key={option}
-              onClick={() => pop(optionIndex)}
-              aria-label={`Explotar el globo ${option}`}
-              onAnimationEnd={() => {
-                if (optionIndex === question.correctIndex) setEscaped(true);
-              }}
-              className="animate-rise absolute flex min-h-14 min-w-14 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[3px] border-black/10 px-4 py-3 font-display text-lg font-bold text-white shadow-clay-sm"
-              style={{
-                left: `${15 + optionIndex * 23}%`,
-                backgroundColor: colors[optionIndex % colors.length],
-                animationDuration: `${riseSeconds(question) + optionIndex * 1.5}s`,
-                animationDelay: `${optionIndex * 0.6}s`,
-              }}
-            >
-              {byLetter ? letters[optionIndex] : option}
-            </button>
-          );
-        })}
-      </div>
-
       {byLetter && (
-        <ul className="space-y-1 text-sm text-slate-600">
+        <ul className="grid gap-x-4 gap-y-0.5 text-sm text-slate-600 sm:grid-cols-2">
           {question.options.map((option, optionIndex) => (
             <li key={option} className="flex gap-2">
               <span className="font-display font-bold text-slate-400">{letters[optionIndex]}</span>
@@ -141,7 +109,44 @@ export function BalloonGame({ questions, onComplete }: GameModeProps) {
         </ul>
       )}
 
-      <div aria-live="polite" className="min-h-14 text-center">
+      {/* El cielo ocupa todo el alto que quede libre: en una tablet tumbada no
+          puede empujar el mensaje de abajo fuera de la pantalla. */}
+      <HuecoTablero className="min-h-56 short:min-h-44">
+        <div className="absolute inset-0 overflow-hidden rounded-clay bg-gradient-to-b from-sky-300 to-sky-100">
+          <span className="absolute left-6 top-6 text-3xl opacity-80" aria-hidden="true">
+            ☁️
+          </span>
+          <span className="absolute right-8 top-16 text-2xl opacity-70" aria-hidden="true">
+            ☁️
+          </span>
+
+          {question.options.map((option, optionIndex) => {
+            const isPopped = popped.includes(optionIndex);
+            if (isPopped) return null;
+            return (
+              <button
+                key={option}
+                onClick={() => pop(optionIndex)}
+                aria-label={`Explotar el globo ${option}`}
+                onAnimationEnd={() => {
+                  if (optionIndex === question.correctIndex) setEscaped(true);
+                }}
+                className="animate-rise absolute flex min-h-14 min-w-14 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-[3px] border-black/10 px-4 py-3 font-display text-lg font-bold text-white shadow-clay-sm"
+                style={{
+                  left: `${15 + optionIndex * 23}%`,
+                  backgroundColor: colors[optionIndex % colors.length],
+                  animationDuration: `${riseSeconds(question) + optionIndex * 1.5}s`,
+                  animationDelay: `${optionIndex * 0.6}s`,
+                }}
+              >
+                {byLetter ? letters[optionIndex] : option}
+              </button>
+            );
+          })}
+        </div>
+      </HuecoTablero>
+
+      <div aria-live="polite" className="min-h-12 text-center short:min-h-10">
         {solved ? (
           <>
             <p className="font-display text-lg font-bold text-emerald-600">
