@@ -74,6 +74,16 @@ const frasesFacts: { sentence: string[]; pieces: string[] }[] = [
   { sentence: ["It", "is", "sunny", "today"], pieces: ["today", "is", "It", "sunny"] },
   { sentence: ["We", "go", "to", "school"], pieces: ["school", "to", "We", "go"] },
   { sentence: ["She", "has", "a", "red", "car"], pieces: ["car", "has", "red", "She", "a"] },
+  { sentence: ["The", "cat", "is", "black"], pieces: ["black", "cat", "The", "is"] },
+  { sentence: ["I", "am", "eight"], pieces: ["eight", "am", "I"] },
+  { sentence: ["We", "like", "music"], pieces: ["music", "We", "like"] },
+  { sentence: ["My", "mum", "is", "a", "teacher"], pieces: ["teacher", "is", "My", "a", "mum"] },
+  { sentence: ["The", "sky", "is", "blue"], pieces: ["blue", "The", "is", "sky"] },
+  { sentence: ["He", "can", "run", "fast"], pieces: ["fast", "run", "He", "can"] },
+  { sentence: ["I", "like", "red", "apples"], pieces: ["apples", "red", "I", "like"] },
+  { sentence: ["They", "are", "in", "the", "park"], pieces: ["park", "the", "They", "in", "are"] },
+  { sentence: ["Open", "the", "door"], pieces: ["door", "Open", "the"] },
+  { sentence: ["She", "reads", "a", "book"], pieces: ["book", "a", "reads", "She"] },
 ];
 
 const frasesActivities: BuildAnswerActivity[] = frasesFacts.map(({ sentence, pieces }, index) => ({
@@ -237,7 +247,7 @@ export const activities: Activity[] = [
     topic: "Frases simples",
     difficulty: 1,
     title: "Construye la frase",
-    narrative: "Ordena las piezas para formar 10 frases sencillas en inglés.",
+    narrative: "Ordena las piezas para formar 20 frases sencillas en inglés.",
     badge: "🇬🇧 Constructor de frases",
     steps: frasesFacts.map((_, index) => ({
       id: `st-a3-${index + 1}`,
