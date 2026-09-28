@@ -37,6 +37,14 @@ const tablasFacts: { a: number; b: number; options: string[]; correctIndex: numb
   { a: 10, b: 7, options: ["60", "77", "100", "70"], correctIndex: 3 },
   { a: 6, b: 8, options: ["42", "48", "46", "54"], correctIndex: 1 },
   { a: 9, b: 9, options: ["72", "90", "81", "99"], correctIndex: 2 },
+  { a: 4, b: 7, options: ["24", "28", "32", "21"], correctIndex: 1 },
+  { a: 7, b: 7, options: ["42", "56", "49", "47"], correctIndex: 2 },
+  { a: 8, b: 9, options: ["72", "64", "81", "63"], correctIndex: 0 },
+  { a: 6, b: 6, options: ["30", "42", "32", "36"], correctIndex: 3 },
+  { a: 4, b: 8, options: ["36", "28", "32", "24"], correctIndex: 2 },
+  { a: 10, b: 9, options: ["90", "99", "80", "19"], correctIndex: 0 },
+  { a: 3, b: 6, options: ["16", "18", "21", "12"], correctIndex: 1 },
+  { a: 7, b: 5, options: ["30", "40", "45", "35"], correctIndex: 3 },
 ];
 
 const tablasActivities: MultipleChoiceActivity[] = tablasFacts.map(
@@ -184,7 +192,7 @@ export const activities: Activity[] = [
     difficulty: 1,
     title: "Las tablas de multiplicar",
     narrative:
-      "12 multiplicaciones de todas las tablas, del 2 al 10, mezcladas y en un orden distinto cada vez.",
+      "20 multiplicaciones de todas las tablas, del 2 al 10, mezcladas y en un orden distinto cada vez.",
     badge: "🔢 Maestro de las tablas",
     steps: tablasFacts.map(({ a, b }, index) => ({
       id: `st-a1-${index + 1}`,
