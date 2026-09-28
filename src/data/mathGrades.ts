@@ -306,7 +306,7 @@ const grades: GradeDefinition[] = [
       { tema: "Trigonometría", question: "¿Cuánto vale el seno de 90°?", options: ["1", "0", "-1", "1/2"], correctIndex: 0, explanation: "sen 90° = 1." },
       { tema: "Trigonometría", question: "En un triángulo rectángulo, ¿qué es el coseno de un ángulo?", options: ["cateto opuesto entre hipotenusa", "cateto opuesto entre contiguo", "hipotenusa entre cateto", "cateto contiguo entre hipotenusa"], correctIndex: 3, explanation: "Coseno = cateto contiguo ÷ hipotenusa." },
       { tema: "Probabilidad", question: "¿Qué probabilidad hay de sacar un 6 al tirar un dado?", options: ["1/2", "6", "1/6", "1/3"], correctIndex: 2, explanation: "Hay 1 caso favorable entre 6 posibles: 1/6." },
-      { tema: "Probabilidad", question: "Al lanzar una moneda dos veces, ¿qué probabilidad hay de sacar dos caras?", options: ["1/2", "1/3", "2", "1/4"], correctIndex: 3, explanation: "1/2 × 1/2 = 1/4." },
+      { tema: "Probabilidad", question: "Se saca una carta de una baraja española de 40. ¿Qué probabilidad hay de que sea de oros?", options: ["1/2", "1/10", "1/40", "1/4"], correctIndex: 3, explanation: "Hay 10 oros entre 40 cartas: 10/40 = 1/4." },
     ],
   },
 ];
