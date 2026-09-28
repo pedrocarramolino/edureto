@@ -10,6 +10,7 @@ import { withTimeout } from "@/lib/withTimeout";
 import type { Stage, Subject } from "@/types";
 import { WorldBadge } from "@/components/ui/WorldBadge";
 import { Chalkboard } from "@/components/ui/Chalkboard";
+import { FiltroAsignatura, type FiltroValor } from "@/components/ui/FiltroAsignatura";
 
 function SubjectCard({ subject, count }: { subject: Subject; count: number }) {
   return (
@@ -43,6 +44,7 @@ export default function SubjectsPage() {
   const { user } = useAuth();
   const [stage, setStage] = useState<Stage | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<FiltroValor>("all");
 
   useEffect(() => {
     if (!user) return;
@@ -57,10 +59,13 @@ export default function SubjectsPage() {
 
   // Until we know the course, show everything rather than the wrong list.
   const visible = stage ? subjectsForStage(stage) : allSubjects;
-  const withCount = visible.map((subject) => ({
-    subject,
-    count: activitiesBySubject(subject.id).length,
-  }));
+  // El filtro deja solo la asignatura elegida; "Todas" enseña el curso entero.
+  const withCount = visible
+    .filter((subject) => filter === "all" || subject.id === filter)
+    .map((subject) => ({
+      subject,
+      count: activitiesBySubject(subject.id).length,
+    }));
   const ready = withCount.filter((item) => item.count > 0);
   const soon = withCount.filter((item) => item.count === 0);
 
@@ -74,6 +79,8 @@ export default function SubjectsPage() {
         <p className="text-sm text-slate-500">Cargando tus asignaturas…</p>
       ) : (
         <>
+          <FiltroAsignatura valor={filter} onCambio={setFilter} asignaturas={visible} />
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {ready.map(({ subject, count }) => (
               <SubjectCard key={subject.id} subject={subject} count={count} />

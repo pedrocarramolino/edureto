@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { CaretDown, Check } from "@phosphor-icons/react";
 import { activities } from "@/data/activities";
 import { subjects } from "@/data/subjects";
-import type { SubjectId } from "@/types";
+import type { Subject, SubjectId } from "@/types";
 
 export type FiltroValor = SubjectId | "all";
 
@@ -26,7 +26,8 @@ const sinTildes = (texto: string) =>
  * los nombres largos. Esta se abre debajo del botón, con el color y el dibujo
  * de cada asignatura y cuántas actividades tiene.
  *
- * Salen todas las asignaturas. Las que aún no tienen actividades van al final,
+ * Salen todas las asignaturas, o las que se le pasen (en "Mis asignaturas",
+ * las del curso del alumno). Las que aún no tienen actividades van al final,
  * en "Próximamente", y no se pueden elegir: llevarían a una página vacía.
  *
  * Se maneja también con el teclado: flechas, Inicio/Fin, Intro para elegir,
@@ -36,10 +37,12 @@ export function FiltroAsignatura({
   valor,
   onCambio,
   estilo = "alumno",
+  asignaturas = subjects,
 }: {
   valor: FiltroValor;
   onCambio: (valor: FiltroValor) => void;
   estilo?: "alumno" | "profesora";
+  asignaturas?: Subject[];
 }) {
   const id = useId();
   const [abierta, setAbierta] = useState(false);
@@ -53,11 +56,11 @@ export function FiltroAsignatura({
   for (const activity of activities) {
     recuento.set(activity.subjectId, (recuento.get(activity.subjectId) ?? 0) + 1);
   }
+  const conActividades = asignaturas.filter((subject) => recuento.has(subject.id));
+  const total = conActividades.reduce((suma, subject) => suma + (recuento.get(subject.id) ?? 0), 0);
   const elegibles: Opcion[] = [
-    { valor: "all", nombre: "Todas las asignaturas", emoji: "📚", color: "#e2e8f0", cuantas: activities.length },
-    ...subjects
-      .filter((subject) => recuento.has(subject.id))
-      .map((subject) => ({
+    { valor: "all", nombre: "Todas las asignaturas", emoji: "📚", color: "#e2e8f0", cuantas: total },
+    ...conActividades.map((subject) => ({
         valor: subject.id,
         nombre: subject.name,
         emoji: subject.emoji,
@@ -65,24 +68,44 @@ export function FiltroAsignatura({
         cuantas: recuento.get(subject.id) ?? 0,
       })),
   ];
-  const proximamente = subjects.filter((subject) => !recuento.has(subject.id));
+  const proximamente = asignaturas.filter((subject) => !recuento.has(subject.id));
   const elegida = elegibles.find((opcion) => opcion.valor === valor) ?? elegibles[0];
 
-  // Abierta: el foco pasa a la lista y un toque fuera la cierra.
+  // Abierta: el foco pasa a la lista, se ve la opción elegida y un toque
+  // fuera la cierra. preventScroll: sin él, el navegador movía la página.
   useEffect(() => {
     if (!abierta) return;
-    lista.current?.focus();
+    lista.current?.focus({ preventScroll: true });
+    verOpcion(activa);
     function fuera(event: PointerEvent) {
       if (!raiz.current?.contains(event.target as Node)) setAbierta(false);
     }
     document.addEventListener("pointerdown", fuera);
     return () => document.removeEventListener("pointerdown", fuera);
+    // Solo al abrir: después la lista se mueve con el teclado, no sola.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [abierta]);
 
-  // La opción marcada siempre a la vista, aunque la lista haga scroll.
-  useEffect(() => {
-    if (abierta) document.getElementById(`${id}-${activa}`)?.scrollIntoView({ block: "nearest" });
-  }, [abierta, activa, id]);
+  /**
+   * Hace scroll dentro de la lista hasta la opción, y solo dentro de la lista.
+   * Con scrollIntoView se movía también la página, y al pasar el ratón por
+   * encima el contenido se desplazaba bajo el dedo: un toque en una asignatura
+   * acababa abriendo la tarjeta que había debajo.
+   */
+  function verOpcion(i: number) {
+    const caja = lista.current;
+    const opcion = document.getElementById(`${id}-${i}`);
+    if (!caja || !opcion) return;
+    const arriba = opcion.offsetTop;
+    const abajo = arriba + opcion.offsetHeight;
+    if (arriba < caja.scrollTop) caja.scrollTop = arriba - 6;
+    else if (abajo > caja.scrollTop + caja.clientHeight) caja.scrollTop = abajo - caja.clientHeight + 6;
+  }
+
+  function marcar(i: number) {
+    setActiva(i);
+    verOpcion(i);
+  }
 
   function abrir() {
     setActiva(Math.max(0, elegibles.indexOf(elegida)));
@@ -116,7 +139,7 @@ export function FiltroAsignatura({
     };
     if (event.key in mover) {
       event.preventDefault();
-      setActiva(mover[event.key]);
+      marcar(mover[event.key]);
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       elegir(elegibles[activa]);
@@ -130,7 +153,7 @@ export function FiltroAsignatura({
       const letra = sinTildes(event.key);
       const orden = [...elegibles.keys()].map((i) => (activa + 1 + i) % elegibles.length);
       const encontrada = orden.find((i) => sinTildes(elegibles[i].nombre).startsWith(letra));
-      if (encontrada !== undefined) setActiva(encontrada);
+      if (encontrada !== undefined) marcar(encontrada);
     }
   }
 
