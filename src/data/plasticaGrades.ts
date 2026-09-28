@@ -59,7 +59,7 @@ const grades: GradeDefinition[] = [
       { tema: "Color y composición", question: "¿Qué es el ritmo visual?", options: ["la repetición ordenada de elementos", "la velocidad al dibujar", "el brillo del color", "el tamaño del soporte"], correctIndex: 0, explanation: "La repetición guía la mirada por la imagen." },
       { tema: "Color y composición", question: "¿Qué es el contraste?", options: ["la diferencia clara entre dos elementos", "la mezcla de dos colores", "el borde del dibujo", "la copia de un modelo"], correctIndex: 0, explanation: "Puede ser de color, de tamaño, de forma o de luz." },
       { tema: "Color y composición", question: "¿Qué es el formato de una obra?", options: ["la forma y la proporción del soporte", "la técnica usada", "el tema representado", "el nombre del autor"], correctIndex: 0, explanation: "Vertical, horizontal o cuadrado: condiciona la composición." },
-      { tema: "Imagen y audiovisual", question: "¿Qué plano muestra a una persona de cuerpo entero?", options: ["el primer plano", "el plano general", "el plano detalle", "el plano medio"], correctIndex: 1, explanation: "El general sitúa a la figura en su entorno." },
+      { tema: "Imagen y audiovisual", question: "¿Qué plano muestra a una persona de cuerpo entero?", options: ["el primer plano", "el plano entero", "el plano detalle", "el plano medio"], correctIndex: 1, explanation: "El plano entero la muestra de la cabeza a los pies; el general, además, la sitúa en su entorno." },
       { tema: "Color y composición", question: "¿Qué es un boceto?", options: ["el dibujo rápido previo a la obra final", "la obra terminada", "el marco de un cuadro", "una copia exacta"], correctIndex: 0, explanation: "Sirve para probar ideas antes de trabajar en serio." },
     ],
   },

@@ -54,7 +54,7 @@ const eso: Pregunta[] = [
   { question: "¿Qué clima tiene calor y lluvias todo el año, como la selva del Amazonas?", options: ["el ecuatorial", "el mediterráneo", "el polar", "el desértico"], correctIndex: 0, explanation: "Cerca del ecuador hace calor y llueve casi a diario." },
   { question: "¿Cuál es la capital de Japón?", options: ["Pekín", "Tokio", "Seúl", "Osaka"], correctIndex: 1, explanation: "Tokio es además una de las ciudades más pobladas del mundo." },
   { question: "¿Qué es un delta?", options: ["un tipo de montaña", "una isla volcánica", "una llanura que forma un río en su desembocadura con sus sedimentos", "un glaciar"], correctIndex: 2, explanation: "El delta del Ebro es el mayor de la península." },
-  { question: "¿Qué es la densidad de población?", options: ["el número total de habitantes", "el número de nacimientos al año", "la edad media", "el número de habitantes por kilómetro cuadrado"], correctIndex: 3, explanation: "Se calcula dividiendo los habitantes entre la superficie." },
+  { question: "¿Qué país de la Unión Europea tiene más habitantes?", options: ["Francia", "Italia", "España", "Alemania"], correctIndex: 3, explanation: "Alemania supera los 80 millones de habitantes." },
 ];
 
 function aActividades(
