@@ -50,6 +50,14 @@ function temasDe(activity: MissionActivity) {
   return grupos;
 }
 
+/**
+ * Lo más que dura una partida. Un curso que sigue un libro entero (1º ESO de
+ * Matemáticas tiene más de cien preguntas) no se juega de una sentada: cada
+ * partida saca 20 al azar, distintas cada vez. Además, la base de datos no
+ * guarda partidas de más de 30 preguntas.
+ */
+const MAX_PARTIDA = 20;
+
 /** The arcade modes need every step to be a question with options. */
 function questionsOf(steps: MissionActivity["steps"]): MultipleChoiceActivity[] {
   const activities = steps
@@ -93,13 +101,19 @@ export function MissionGame({
 
   const stepsCorrect = results.filter((r) => r.correct).length;
 
+  const enLaPartida = Math.min(pasosDelTema.length, MAX_PARTIDA);
+
   function start(nextMode: Mode) {
-    setSteps(shuffle(pasosDelTema));
-    setQuestions(shuffle(questionsOf(pasosDelTema)));
+    const elegidos = shuffle(pasosDelTema).slice(0, MAX_PARTIDA);
+    setSteps(elegidos);
+    setQuestions(questionsOf(elegidos));
     setMode(nextMode);
   }
 
   if (tema === null) {
+    // Con muchos temas (un libro con 15 unidades) van en dos columnas también
+    // en el móvil; si no, la lista no se acaba nunca.
+    const muchos = temas.size > 6;
     return (
       <div className="space-y-5 text-center short:space-y-3">
         <p className="font-display text-lg font-semibold text-slate-800">{activity.narrative}</p>
@@ -107,14 +121,24 @@ export function MissionGame({
           <p className="mb-3 font-display text-sm font-bold uppercase text-slate-400">
             ¿Qué quieres repasar?
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 short:grid-cols-3 short:gap-2">
+          <div
+            className={`grid short:gap-2 ${
+              muchos
+                ? "grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4 short:grid-cols-4"
+                : "gap-3 sm:grid-cols-2 lg:grid-cols-3 short:grid-cols-3"
+            }`}
+          >
             {[...temas.entries()].map(([nombre, pasos]) => (
               <button
                 key={nombre}
                 onClick={() => setTema(nombre)}
-                className="cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white p-4 text-left shadow-clay-sm short:p-2.5 transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed"
+                className={`cursor-pointer rounded-clay border-[3px] border-slate-200 bg-white text-left shadow-clay-sm short:p-2.5 transition-all hover:border-accent hover:bg-accent-soft active:translate-y-[3px] active:shadow-clay-pressed ${
+                  muchos ? "p-3" : "p-4"
+                }`}
               >
-                <p className="font-display font-bold text-slate-800">{nombre}</p>
+                <p className={`font-display font-bold leading-tight text-slate-800 ${muchos ? "text-sm sm:text-base" : ""}`}>
+                  {nombre}
+                </p>
                 <p className="text-xs text-slate-500">
                   {pasos.length} {pasos.length === 1 ? "pregunta" : "preguntas"}
                 </p>
@@ -125,7 +149,10 @@ export function MissionGame({
             onClick={() => setTema("todo")}
             className="mt-3 cursor-pointer rounded-clay border-[3px] border-dashed border-slate-300 px-5 py-3 font-display font-bold text-slate-600 transition-colors hover:border-accent hover:text-accent"
           >
-            Todo el curso · {activity.steps.length} preguntas
+            Todo el curso ·{" "}
+            {activity.steps.length > MAX_PARTIDA
+              ? `${MAX_PARTIDA} preguntas al azar de ${activity.steps.length}`
+              : `${activity.steps.length} preguntas`}
           </button>
         </div>
       </div>
@@ -140,7 +167,7 @@ export function MissionGame({
           {tema === "todo" ? activity.narrative : tema}
         </p>
         <p className="text-sm text-slate-500">
-          {pasosDelTema.length} {pasosDelTema.length === 1 ? "reto" : "retos"} por completar
+          {enLaPartida} {enLaPartida === 1 ? "reto" : "retos"} por completar
           {porTemas && (
             <button
               onClick={() => setTema(null)}
